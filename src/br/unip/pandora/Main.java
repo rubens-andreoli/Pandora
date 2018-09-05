@@ -16,5 +16,9 @@ public class Main {
     public static int randomBetween(int low, int high){
 	return GENERATOR.nextInt(high-low)+low;
     }
+
+    public static boolean randomBoolean(int probability) {
+	return GENERATOR.nextInt(10)+1 <= probability/10? true:false;
+    }
     
 }
