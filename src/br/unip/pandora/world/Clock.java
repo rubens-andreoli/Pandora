@@ -2,9 +2,8 @@ package br.unip.pandora.world;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics2D;
-
-//TODO: test diferent sizes
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
 public class Clock {
     
@@ -12,46 +11,61 @@ public class Clock {
     private Color sunColor = Color.YELLOW;
     private int moonSize = 10;
     private Color moonColor = Color.GRAY;
-    private Font textFont = new Font(Font.MONOSPACED, Font.PLAIN, 10);
+    private Font textFont = new Font(Font.MONOSPACED, Font.PLAIN, 9);
     private Color textColor = Color.WHITE;
+    private Color backColor = Color.BLACK;
     
-    private int x, y, size;
-    private int dayHours;
+    private int width;
+    private int height;
+    private int dayHours, yearDays;
     private int orbitX, orbitY, orbitRadius;
     private double orbitSpeed;
+    
+    private BufferedImage image;
 
-    public Clock(int x, int y, int size, int dayHours) {
-	this.x = x;
-	this.y = y;
-	this.size = size;
+    public Clock(int width, int dayHours, int yearDays) {
+	this.width = width;
 	this.dayHours = dayHours;
-	orbitRadius = (size-40-sunSize)/2;
-	orbitX = (size/2)+x;
-	orbitY = orbitRadius+15+y;
+	this.yearDays = yearDays;
+	orbitRadius = (width-40-sunSize)/2;
+	orbitX = width/2;
+	orbitY = orbitRadius+25;
 	orbitSpeed = Math.PI / (dayHours/2);
+	height = orbitRadius+40;
+	image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
     }
     
-    public void draw(Graphics2D g, int hour, Color backColor){
+    public BufferedImage drawImage(int hour){
+	Graphics g = image.getGraphics();
+
+	//backgound
+	g.setColor(backColor);
+	g.fillRect(0, 0, width, height);
+	
 	//sun-moon
 	double radian = orbitSpeed * (hour + dayHours/2);
-	double starX = orbitX + orbitRadius * Math.cos(radian);
-	double starY = orbitY + orbitRadius * Math.sin(radian);
+	double starX = orbitX + (orbitRadius*Math.cos(radian));
+	double starY = orbitY + (orbitRadius*Math.sin(radian));
 	g.setColor(sunColor);
 	g.fillOval((int)(starX - sunSize/2), (int)(starY - sunSize/2), sunSize, sunSize);
 	radian = orbitSpeed * hour;
-	starX = orbitX + orbitRadius * Math.cos(radian);
-	starY = orbitY + orbitRadius * Math.sin(radian);
+	starX = orbitX + (orbitRadius*Math.cos(radian));
+	starY = orbitY + (orbitRadius*Math.sin(radian));
 	g.setColor(moonColor);
 	g.fillOval((int)(starX - moonSize/2), (int)(starY - moonSize/2), moonSize, moonSize);
 	g.setColor(backColor);
-	g.fillRect(x, y+orbitRadius+16, size, size);
-	g.setColor(textColor);
-	g.drawLine(x+10, y+orbitRadius+15, x+size-10, y+orbitRadius+15);
-
+	g.fillRect(0, orbitRadius+26, width, orbitRadius);
+	
 	//time
 	g.setFont(textFont);
-	String time = "Day: " + hour / dayHours + " Hour: " + hour % dayHours;
-	g.drawString(time, (size/2-g.getFontMetrics(textFont).stringWidth(time)/2)+x, y+orbitRadius+30);
+	g.setColor(textColor);
+	g.drawLine(10, orbitRadius+25, width-10, orbitRadius+25);
+	String time = "Year: "+ String.format("%04d", (hour/dayHours)/yearDays)+
+		" Day: " + String.format("%03d", (hour/dayHours)%yearDays) + 
+		" Hour: " + String.format("%02d", hour%dayHours);
+	g.drawString(time, (width/2 - g.getFontMetrics(textFont).stringWidth(time)/2)+1, orbitRadius+35);
+	
+	return image;
     }
     
 }

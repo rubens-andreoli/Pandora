@@ -63,11 +63,11 @@ public class Loop implements Runnable {
 		shouldRender = true;
 	    }
 	    
-	    try {
-		Thread.sleep(2);
-	    } catch (InterruptedException ex) {
-		ex.printStackTrace();
-	    }
+//	    try {
+//		Thread.sleep(2);
+//	    } catch (InterruptedException ex) {
+//		ex.printStackTrace();
+//	    }
 	    
 	    if(shouldRender){
 		frames++;
