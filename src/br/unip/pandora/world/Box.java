@@ -1,17 +1,15 @@
 package br.unip.pandora.world;
 
-import br.unip.pandora.Laucher;
+import br.unip.pandora.Game;
 import br.unip.pandora.Loop;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
-public class Box implements MouseListener, KeyListener{
+public class Box extends Game {
 
     //objects
     private World world;
@@ -25,7 +23,6 @@ public class Box implements MouseListener, KeyListener{
     private int tick;
     
     //ui
-    private int width, height;
     private String hourSecMask = "Hour/Sec: %.4f";
     private Color hourSecColor = Color.GRAY;
     private String numSoulsTxt = "Nº Souls: ";
@@ -43,14 +40,14 @@ public class Box implements MouseListener, KeyListener{
     private int speakerDuration = 2*Loop.UPS;
 
     
-    public Box(int width, int height) {
-	this.width = width;
-	this.height = height;
+    public Box(String title, int width, int height) {
+	super(title, width, height);
 	world = new World(width-infoWidth, height);
 	clock = new Clock(infoWidth, 24, 365);
 	speaker = new Speaker();
     }
-
+   
+    @Override
     public void tick() {
 	if(speakerTimer>0) speakerTimer--;
 	if(!isPaused){ 
@@ -63,18 +60,18 @@ public class Box implements MouseListener, KeyListener{
 	}
     }
 
+    @Override
     public void draw(Graphics2D g) {
-	
 	if(!isPaused){
 	    //backgound
 	    g.setColor(backColor);
-	    g.fillRect(0, 0, width, height);
+	    g.fillRect(0, 0, infoWidth+5, height);
 
 	    g.drawImage(clock.drawImage(hour), 0, 0, null);
 	    //name
 	    g.setFont(nameFont);
 	    g.setColor(nameColor);
-	    g.drawString(Laucher.NAME, (infoWidth/2-g.getFontMetrics(nameFont).stringWidth(Laucher.NAME)/2), 12);
+	    g.drawString(title, (infoWidth/2-g.getFontMetrics(nameFont).stringWidth(title)/2), 12);
 	    
 	    //info
 	    g.setFont(infoFont);
@@ -104,7 +101,6 @@ public class Box implements MouseListener, KeyListener{
 	    g.setColor(backColor);
 	    g.fillRect(0, 0, 40, 30);
 	}
-	
     }
 
     @Override
