@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 public class Renderer extends JPanel{
-    
+ 
     //dimensions
     public static final int WIDTH = 640; //800
     public static final int HEIGHT = 480;

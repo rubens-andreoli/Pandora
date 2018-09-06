@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 
 public class Clock {
     
+    //ui
     private int sunSize = 15;
     private Color sunColor = Color.YELLOW;
     private int moonSize = 10;
@@ -14,9 +15,9 @@ public class Clock {
     private Font textFont = new Font(Font.MONOSPACED, Font.PLAIN, 9);
     private Color textColor = Color.WHITE;
     private Color backColor = Color.BLACK;
+    private int width, height;
     
-    private int width;
-    private int height;
+    //orbit
     private int dayHours, yearDays;
     private int orbitX, orbitY, orbitRadius;
     private double orbitSpeed;

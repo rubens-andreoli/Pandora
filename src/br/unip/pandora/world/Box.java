@@ -3,6 +3,7 @@ package br.unip.pandora.world;
 import br.unip.pandora.Loop;
 import br.unip.pandora.Main;
 import br.unip.pandora.Renderer;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -11,7 +12,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-public class WorldManager implements MouseListener, KeyListener{
+public class Box implements MouseListener, KeyListener{
 
     //objects
     private World world;
@@ -25,9 +26,12 @@ public class WorldManager implements MouseListener, KeyListener{
     private int tick;
     
     //ui
+    private String hourSecMask = "Hour/Sec: %.4f";
+    private Color hourSecColor = Color.GRAY;
+    private String numSoulsTxt = "Nº Souls: ";
     private String pauseMsg = "PAUSED";
-    private Font pauseFont = new Font(Font.MONOSPACED, Font.BOLD, 100);
-    private Color pauseColor = Color.YELLOW;
+    private Font pauseFont = new Font(Font.MONOSPACED, Font.BOLD, 10);
+    private Color pauseColor = Color.RED;
     private Color backColor = Color.BLACK;
     private Font nameFont = new Font(Font.MONOSPACED, Font.BOLD, 15);
     private Color nameColor = Color.YELLOW;
@@ -39,21 +43,21 @@ public class WorldManager implements MouseListener, KeyListener{
     private int speakerDuration = 2*Loop.UPS;
 
     
-    public WorldManager() {
-	world = new World(Renderer.WIDTH-infoWidth, Renderer.HEIGHT, 6);
+    public Box() {
+	world = new World(Renderer.WIDTH-infoWidth, Renderer.HEIGHT);
 	clock = new Clock(infoWidth, 24, 365);
 	speaker = new Speaker();
     }
 
-    public void update() {
+    public void tick() {
 	if(speakerTimer>0) speakerTimer--;
 	if(!isPaused){ 
 	    tick++;
 	    if(tick >= hourRate){
 		hour++;
 		tick = 0;
+	        world.update(); //update each hour? half hour?
 	    }
-	    world.update();
 	}
     }
 
@@ -72,22 +76,32 @@ public class WorldManager implements MouseListener, KeyListener{
 	    
 	    //info
 	    g.setFont(infoFont);
-	    g.setColor(Color.GRAY);
-	    g.drawString(String.format("Hour/Sec: %.4f", 60.0/hourRate), 10, 105);
+	    g.setColor(hourSecColor);
+	    g.drawString(String.format(hourSecMask, 60.0/hourRate), 10, 105);
 	    g.setColor(infoColor);
 	    g.drawRect(10, 110, infoWidth-20, Renderer.HEIGHT-130);
 	    //TODO: show soul info
 	    	
-	    g.drawString("Nº Souls: "+world.getNumSouls(), 10, Renderer.HEIGHT-6);	
+	    g.drawString(numSoulsTxt+world.getNumSouls(), 10, Renderer.HEIGHT-6);	
 	    
 	    g.drawImage(world.drawImage(), infoWidth, 0, null);
 	}else{
 	    g.setFont(pauseFont);
 	    g.setColor(pauseColor);
-	    g.drawString(pauseMsg, Renderer.WIDTH/2-g.getFontMetrics(pauseFont).stringWidth(pauseMsg)/2, Renderer.HEIGHT/2);
+	    g.drawString(pauseMsg, infoWidth/2-g.getFontMetrics(pauseFont).stringWidth(pauseMsg)/2, 64);
+	    
+	    g.setStroke(new BasicStroke(2));
+//	    g.drawString(pauseMsg, Renderer.WIDTH/2-g.getFontMetrics(pauseFont).stringWidth(pauseMsg)/2, Renderer.HEIGHT/2);
+	    g.drawLine(infoWidth/2-4, 45, infoWidth/2-4, 55);
+	    g.drawLine(infoWidth/2+4, 45, infoWidth/2+4, 55);
+	    g.setStroke(new BasicStroke(1));
 	}
 	
 	if(speakerTimer != 0) g.drawImage(speaker.drawImage(volume), 5, 5, null);
+	else{ //better solution?
+	    g.setColor(backColor);
+	    g.fillRect(0, 0, 40, 30);
+	}
 	
     }
 

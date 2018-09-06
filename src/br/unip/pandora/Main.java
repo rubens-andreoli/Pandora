@@ -18,7 +18,7 @@ public class Main {
     }
 
     public static boolean randomBoolean(int probability) {
-	return GENERATOR.nextInt(10)+1 <= probability/10? true:false;
+	return GENERATOR.nextFloat() <= probability/100.0? true:false;
     }
     
 }

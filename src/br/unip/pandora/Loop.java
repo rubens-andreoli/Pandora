@@ -1,6 +1,6 @@
 package br.unip.pandora;
 
-import br.unip.pandora.world.WorldManager;
+import br.unip.pandora.world.Box;
 import javax.swing.JFrame;
 
 public class Loop implements Runnable {
@@ -12,9 +12,9 @@ public class Loop implements Runnable {
     private double nsPerTick = 1000000000D/UPS;
     
     //parts
-    private JFrame frame;
+    private JFrame frame; //TODO: move frame to Renderer and rename to Display
     private Renderer renderer;
-    private WorldManager worldManager;
+    private Box box;
     
     public Loop(Renderer renderer) {
 	this.frame = new JFrame(Main.NAME);
@@ -28,9 +28,9 @@ public class Loop implements Runnable {
     }
     
     private void init(){
-	worldManager = new WorldManager();
-	frame.addMouseListener(worldManager);
-	frame.addKeyListener(worldManager);
+	box = new Box();
+	frame.addMouseListener(box);
+	frame.addKeyListener(box);
 	running = true;
     }
 
@@ -58,7 +58,7 @@ public class Loop implements Runnable {
 
 	    while(delta >= 1){
 		ticks++;
-		worldManager.update();
+		box.tick();
 		delta -= 1;
 		shouldRender = true;
 	    }
@@ -71,7 +71,7 @@ public class Loop implements Runnable {
 	    
 	    if(shouldRender){
 		frames++;
-		worldManager.draw(renderer.getG2D());
+		box.draw(renderer.getG2D());
 		renderer.drawToScreen();
 	    }
 	    
