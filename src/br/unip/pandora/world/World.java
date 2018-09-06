@@ -1,6 +1,6 @@
 package br.unip.pandora.world;
 
-import br.unip.pandora.Main;
+import br.unip.pandora.Generator;
 import br.unip.pandora.entity.Entity;
 import br.unip.pandora.entity.Soul;
 import br.unip.pandora.entity.Water;
@@ -50,9 +50,9 @@ public class World {
 	int[] centerY = new int[numCenters];
 	boolean[] isWater = new boolean[numCenters];
 	for(int i = 0; i < numCenters; i++) {
-	    centerX[i] = Main.GENERATOR.nextInt(rows);
-	    centerY[i] = Main.GENERATOR.nextInt(cols);
-	    isWater[i] = Main.randomBoolean(waterChance);
+	    centerX[i] = Generator.RANDOM.nextInt(rows);
+	    centerY[i] = Generator.RANDOM.nextInt(cols);
+	    isWater[i] = Generator.randomBoolean(waterChance);
 	}
 	int n = 0;
 	Water water = new Water(); //all water are the same

@@ -1,8 +1,7 @@
 package br.unip.pandora.world;
 
+import br.unip.pandora.Laucher;
 import br.unip.pandora.Loop;
-import br.unip.pandora.Main;
-import br.unip.pandora.Renderer;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -26,6 +25,7 @@ public class Box implements MouseListener, KeyListener{
     private int tick;
     
     //ui
+    private int width, height;
     private String hourSecMask = "Hour/Sec: %.4f";
     private Color hourSecColor = Color.GRAY;
     private String numSoulsTxt = "Nº Souls: ";
@@ -43,8 +43,10 @@ public class Box implements MouseListener, KeyListener{
     private int speakerDuration = 2*Loop.UPS;
 
     
-    public Box() {
-	world = new World(Renderer.WIDTH-infoWidth, Renderer.HEIGHT);
+    public Box(int width, int height) {
+	this.width = width;
+	this.height = height;
+	world = new World(width-infoWidth, height);
 	clock = new Clock(infoWidth, 24, 365);
 	speaker = new Speaker();
     }
@@ -66,23 +68,23 @@ public class Box implements MouseListener, KeyListener{
 	if(!isPaused){
 	    //backgound
 	    g.setColor(backColor);
-	    g.fillRect(0, 0, Renderer.WIDTH, Renderer.HEIGHT);
+	    g.fillRect(0, 0, width, height);
 
 	    g.drawImage(clock.drawImage(hour), 0, 0, null);
 	    //name
 	    g.setFont(nameFont);
 	    g.setColor(nameColor);
-	    g.drawString(Main.NAME, (infoWidth/2-g.getFontMetrics(nameFont).stringWidth(Main.NAME)/2), 12);
+	    g.drawString(Laucher.NAME, (infoWidth/2-g.getFontMetrics(nameFont).stringWidth(Laucher.NAME)/2), 12);
 	    
 	    //info
 	    g.setFont(infoFont);
 	    g.setColor(hourSecColor);
 	    g.drawString(String.format(hourSecMask, 60.0/hourRate), 10, 105);
 	    g.setColor(infoColor);
-	    g.drawRect(10, 110, infoWidth-20, Renderer.HEIGHT-130);
+	    g.drawRect(10, 110, infoWidth-20, height-130);
 	    //TODO: show soul info
 	    	
-	    g.drawString(numSoulsTxt+world.getNumSouls(), 10, Renderer.HEIGHT-6);	
+	    g.drawString(numSoulsTxt+world.getNumSouls(), 10, height-6);	
 	    
 	    g.drawImage(world.drawImage(), infoWidth, 0, null);
 	}else{

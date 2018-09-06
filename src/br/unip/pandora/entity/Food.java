@@ -1,6 +1,6 @@
 package br.unip.pandora.entity;
 
-import br.unip.pandora.Main;
+import br.unip.pandora.Generator;
 
 public class Food implements Entity{
 
@@ -12,7 +12,7 @@ public class Food implements Entity{
     private static int max_saturation = 50;
 
     public Food() {
-	this.saturation = Main.randomBetween(min_saturation, max_saturation);
+	this.saturation = Generator.randomBetween(min_saturation, max_saturation);
     }
     
     public void update(){
