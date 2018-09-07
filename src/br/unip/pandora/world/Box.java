@@ -1,7 +1,6 @@
 package br.unip.pandora.world;
 
 import br.unip.pandora.Game;
-import br.unip.pandora.Loop;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -19,7 +18,7 @@ public class Box extends Game {
     //time
     private boolean isPaused;
     private int hour;
-    private int hourRate = 1*Loop.UPS;
+    private int hourRate;
     private int tick;
     
     //ui
@@ -37,11 +36,15 @@ public class Box extends Game {
     private int infoWidth = 160;
     private int volume;
     private int speakerTimer;
-    private int speakerDuration = 2*Loop.UPS;
+    private int speakerDuration;
 
     
-    public Box(String title, int width, int height) {
-	super(title, width, height);
+    public Box() {
+	super("PANDORA", 640, 480, 2, 60);
+	
+	hourRate = 1*ups;
+	speakerDuration = 2*ups;
+	
 	world = new World(width-infoWidth, height);
 	clock = new Clock(infoWidth, 24, 365);
 	speaker = new Speaker();
@@ -99,7 +102,7 @@ public class Box extends Game {
 	if(speakerTimer != 0) g.drawImage(speaker.drawImage(volume), 5, 5, null);
 	else{ //better solution?
 	    g.setColor(backColor);
-	    g.fillRect(0, 0, 40, 30);
+	    g.fillRect(5, 0, 35, 30);
 	}
     }
 

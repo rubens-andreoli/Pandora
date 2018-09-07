@@ -28,6 +28,7 @@ public class World {
     //water generation
     private int numCenters = 60; //waterbody size
     private int waterChance = 8; //waterbody chance
+//    private int waterLimit = 4; //waterbody limit
 
     private BufferedImage terrain, image;
     
@@ -49,10 +50,14 @@ public class World {
 	int[] centerX = new int[numCenters];
 	int[] centerY = new int[numCenters];
 	boolean[] isWater = new boolean[numCenters];
+//	int numWater = 0;
 	for(int i = 0; i < numCenters; i++) {
 	    centerX[i] = Generator.RANDOM.nextInt(rows);
 	    centerY[i] = Generator.RANDOM.nextInt(cols);
-	    isWater[i] = Generator.randomBoolean(waterChance);
+//	    if(numWater <= waterLimit){
+		isWater[i] = Generator.randomBoolean(waterChance);
+//		numWater++;
+//	    }
 	}
 	int n = 0;
 	Water water = new Water(); //all water are the same
@@ -79,8 +84,12 @@ public class World {
     private void drawTerrain(){
 	int border = gridSize; //duplicated for readability
 	Graphics2D g = (Graphics2D) terrain.getGraphics();
+	
+	//grass
 	g.setColor(soilColor);
 	g.fillRect(border, border, width-(2*border), height-(2*border));
+	
+	//water
 	g.setColor(waterColor);
 	for (int x = 0; x < rows; x++) {
 	    for (int y = 0; y < cols; y++) {
@@ -89,6 +98,8 @@ public class World {
 		}
 	    }
 	}
+	
+	//grid
 	g.setColor(new Color(230, 230, 230, 90));
 	for(int x=gridSize+border; x<width-border; x+=gridSize){
 	    g.drawLine(x, border, x, height-border-1);
@@ -96,6 +107,8 @@ public class World {
 	for(int y=border+gridSize; y<height-border; y+=gridSize){
 	    g.drawLine(border, y, width-border-1, y);
 	}
+	
+	//border
 	g.setColor(borderColor);
 	for(int x=1; x<width; x+=gridSize){
 	    for(int y=1; y<height; y+=gridSize){
@@ -104,11 +117,12 @@ public class World {
 	    }
 	}
 	
+	g.dispose(); //needed?
     }
     
     public BufferedImage drawImage(){
 	Graphics g = image.getGraphics();
-	g.drawImage(terrain, 0, 0, null);
+	g.drawImage(terrain, 0, 0, null); //if camera -> limit draw for visible here
 	//TODO: draw food
 	//TODO: draw souls
 	return image;

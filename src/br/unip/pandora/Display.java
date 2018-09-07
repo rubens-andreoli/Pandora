@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -21,20 +22,18 @@ public class Display {
     private JPanel panel;
     private BufferedImage buffer;
     private Graphics2D gBuffer;
-    private InitializedDisplay initDisplay;
 
-    public Display(String title, int scale){
-	this.title = title;
-	this.scale = scale;
-    }
-    
-    public void init(int width, int height){
-	if(initDisplay != null) return;
-	this.width = width;
-	this.height = height;
+    public Display(Game game){
+	title = game.title;
+	width = game.width;
+	height = game.height;
+	scale = game.scale;
 	
 	panel = new JPanel();
-	panel.setPreferredSize(new Dimension(width*scale, height*scale));
+	Dimension d = new Dimension(width*scale, height*scale);
+	panel.setPreferredSize(d);
+	panel.setPreferredSize(d);
+	panel.setPreferredSize(d);
 	panel.setFocusable(false);
 	
 	buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
@@ -46,32 +45,32 @@ public class Display {
 	frame.setResizable(false);
 	frame.pack();
 	frame.setLocationRelativeTo(null);
-	frame.setVisible(true);
-	frame.requestFocus();
-
-	initDisplay = new InitializedDisplay();
     }
-
-    public InitializedDisplay getInitDisplay() {return initDisplay;}
-
-    public class InitializedDisplay {
-	
-	private InitializedDisplay(){}
-	
-	public void show(){
-	    Graphics gShow = panel.getGraphics();
-	    gShow.drawImage(buffer, 0, 0, width*scale, height*scale, null);
-	    gShow.dispose();
-	}
-	
-	public void appendTitle(String text){
-	    frame.setTitle(String.format("%s [%s]", title, text));
-	}
     
-	public Graphics2D getGraphics(){return gBuffer;}  
-	public void addMouseListener(MouseListener l){frame.addMouseListener(l);}
-	public void addKeyListener(KeyListener l){frame.addKeyListener(l);}
-	public void close(){frame.dispose();}
+    public void setVisible(boolean b){
+	frame.setVisible(b);
+	if(b) frame.requestFocus();
     }
+
+    public void show(){
+	Graphics gShow = panel.getGraphics();
+	gShow.drawImage(buffer, 0, 0, width*scale, height*scale, null);
+	gShow.dispose();
+    }
+
+    public void appendTitle(String text){
+	frame.setTitle(String.format("%s [%s]", title, text));
+    }
+
+    public void setTitle(String title) {
+	this.title = title;
+	frame.setTitle(title);
+    }
+    
+    public Graphics2D getGraphics(){return gBuffer;}  
+    public void addWindowListener(WindowListener l) {frame.addWindowListener(l);}
+    public void addMouseListener(MouseListener l){frame.addMouseListener(l);}
+    public void addKeyListener(KeyListener l){frame.addKeyListener(l);}
+    public void close(){frame.dispose();}
 
 }

@@ -1,33 +1,38 @@
 package br.unip.pandora;
 
-import br.unip.pandora.Display.InitializedDisplay;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class Loop {
 
     //loop
+    private final int ups;
+    private final double nsPerTick;
     private boolean running;
-    public static final int UPS = 60;
-//    private int FPS = 120;
-    private double nsPerTick = 1000000000D/UPS;
     
     //parts
     private Thread thread;
-    private Display display;
-    private InitializedDisplay initDisplay;
-    private Game game;
+    private final Display display;
+    private final Game game;
     
-    public Loop(Game game, Display display) {
+    public Loop(final Game game, final Display display) {
 	this.display = display;
 	this.game = game;
+	ups = game.ups;
+	nsPerTick = 1000000000D/ups;
     }
      
     public void start(){
 	if(running) return;
 	
-	display.init(game.width, game.height);
-	initDisplay = display.getInitDisplay();
-	initDisplay.addMouseListener(game);
-	initDisplay.addKeyListener(game);
+	display.addWindowListener(new WindowAdapter(){
+	    @Override
+	    public void windowClosing(WindowEvent e) {
+		stop();
+	    }    
+	});
+	display.addMouseListener(game);
+	display.addKeyListener(game);
 	
 	running = true;
 	thread = new Thread(() -> {
@@ -35,6 +40,8 @@ public class Loop {
 	});
 	thread.setName(game.title);
 	thread.start();
+	
+	display.setVisible(true);
     }
     
     public void stop(){
@@ -42,7 +49,7 @@ public class Loop {
 	running = false;
 	try {
 	    thread.join();
-	    initDisplay.close();
+	    display.close();
 	} catch (InterruptedException ex) {
 //	    Logger.getLogger(Loop.class.getName()).log(Level.SEVERE, null, ex);
 	}
@@ -58,14 +65,14 @@ public class Loop {
 	long lastTimer = System.currentTimeMillis();
 	double deltaUps = 0;
 	
-//	boolean shouldRender = false;
+//	boolean shouldRender = false;  //limit to 1 render for update
 	
 	while(running){
 	    now = System.nanoTime();
 	    deltaUps += (now-lastTime)/nsPerTick;
 	    lastTime = now;
 
-//	    shouldRender = true; //limit to 1 render for update
+//	    shouldRender = false;
 
 	    while(deltaUps >= 1){
 		ticks++;
@@ -80,15 +87,15 @@ public class Loop {
 //		ex.printStackTrace();
 //	    }
 	    
-//	    if(shouldRender/* || frames < FPS-UPS*/){
+//	    if(shouldRender){
 		frames++;
-		game.draw(initDisplay.getGraphics());
-		initDisplay.show();
+		game.draw(display.getGraphics());
+		display.show();
 //	    }
 	    
 	    if(System.currentTimeMillis() - lastTimer>1000){
 		lastTimer += 1000;
-		initDisplay.appendTitle(String.format("ticks/sec: %d, frames/sec: %d", ticks, frames));
+		display.appendTitle(String.format("ticks/sec: %d, frames/sec: %d", ticks, frames));
 		frames = 0;
 		ticks = 0;
 	    }

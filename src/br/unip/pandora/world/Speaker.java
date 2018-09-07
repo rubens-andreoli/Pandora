@@ -15,14 +15,14 @@ public class Speaker {
     private BufferedImage image;
 
     public Speaker() {
-	image = new BufferedImage(40, 25, BufferedImage.TYPE_INT_RGB);
+	image = new BufferedImage(35, 25, BufferedImage.TYPE_INT_RGB);
     }
 
     public BufferedImage drawImage(int volume){
 	Graphics g = image.getGraphics();
 	
 	g.setColor(backColor);
-	g.fillRect(0, 0, 40, 25);
+	g.fillRect(0, 0, 35, 25);
 	
 	g.setColor(color);
 	g.fillPolygon(new int[]{0, 2, 15, 15, 3, 0}, new int[]{8, 8, 1, 21, 16, 16}, 6);

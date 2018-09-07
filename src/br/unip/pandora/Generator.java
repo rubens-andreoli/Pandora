@@ -2,7 +2,9 @@ package br.unip.pandora;
 
 import java.util.Random;
 
-public abstract class Generator {
+public class Generator {
+    
+    private Generator(){};
     
     public static final Random RANDOM = new Random();
     
