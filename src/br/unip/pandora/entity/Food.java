@@ -1,25 +1,27 @@
 package br.unip.pandora.entity;
 
-import br.unip.pandora.Generator;
+import br.unip.pandora.engine.Generator;
+import java.awt.Graphics;
 
-public class Food implements Entity{
+public class Food extends Entity{
 
-    public static final int ID = 2;
-
-    private int saturation;
     private static int degradationRate = 1;
     private static int min_saturation = 10;
     private static int max_saturation = 50;
 
-    public Food() {
-	this.saturation = Generator.randomBetween(min_saturation, max_saturation);
+    public Food(int x, int y) {
+	super(FOOD, x, y);
+	metadata = Generator.randomBetween(min_saturation, max_saturation);
     }
     
+    @Override
     public void update(){
-	if(saturation>0) saturation--;
+	if(metadata>0) metadata--;
     }
 
-    public @Override int getId() {return ID;}
-    public @Override int getMetadata() {return saturation;} //nutrition
+    @Override
+    public void draw(Graphics g) {
+	
+    }
 
 }

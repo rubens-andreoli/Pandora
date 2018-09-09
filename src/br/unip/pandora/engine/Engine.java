@@ -1,57 +1,63 @@
-package br.unip.pandora;
+package br.unip.pandora.engine;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-public class Loop {
-
+public class Engine {
+    
+    public static final int DEFAULT_UPS = 60;
+    
     //loop
-    private final int ups;
-    private final double nsPerTick;
+    private double nanoTick;
     private boolean running;
     
     //parts
     private Thread thread;
-    private final Display display;
-    private final Game game;
+    private Display display;
+    private Game game;
+    private InputHandler input;
     
-    public Loop(final Game game, final Display display) {
-	this.display = display;
+    public Engine(Game game, Display display, InputHandler input) {
 	this.game = game;
-	ups = game.ups;
-	nsPerTick = 1000000000D/ups;
+	this.display = display;
+	this.input = input;
+	nanoTick = 1000000000D/game.ups;
     }
-     
+      
+    public Engine(Game game){
+	this(game, new Display(game.title, game.width, game.height, game.scale), new InputHandler(game.scale));
+    }
+    
     public void start(){
 	if(running) return;
+	running = true;
 	
+	game.setInputHandler(input);
 	display.addWindowListener(new WindowAdapter(){
 	    @Override
 	    public void windowClosing(WindowEvent e) {
 		stop();
 	    }    
 	});
-	display.addMouseListener(game);
-	display.addKeyListener(game);
+	display.addInputHandler(input); //TODO: disable or enable listeners
+	display.setVisible(true);
 	
-	running = true;
 	thread = new Thread(() -> {
 	    loop();
 	});
 	thread.setName(game.title);
 	thread.start();
-	
-	display.setVisible(true);
     }
     
     public void stop(){
 	if(!running) return;
 	running = false;
 	try {
-	    thread.join();
-	    display.close();
+	    thread.join(); 
 	} catch (InterruptedException ex) {
-//	    Logger.getLogger(Loop.class.getName()).log(Level.SEVERE, null, ex);
+//	    Logger.getLogger(Engine.class.getName()).log(Level.SEVERE, null, ex);
+	} finally {
+	    display.close();
 	}
     }
 
@@ -69,7 +75,7 @@ public class Loop {
 	
 	while(running){
 	    now = System.nanoTime();
-	    deltaUps += (now-lastTime)/nsPerTick;
+	    deltaUps += (now-lastTime)/nanoTick;
 	    lastTime = now;
 
 //	    shouldRender = false;
@@ -77,15 +83,10 @@ public class Loop {
 	    while(deltaUps >= 1){
 		ticks++;
 		game.tick();
+		input.tick();
 		deltaUps -= 1;
 //		shouldRender = true;
 	    }
-	    
-//	    try {
-//		Thread.sleep(2);
-//	    } catch (InterruptedException ex) {
-//		ex.printStackTrace();
-//	    }
 	    
 //	    if(shouldRender){
 		frames++;
@@ -99,7 +100,12 @@ public class Loop {
 		frames = 0;
 		ticks = 0;
 	    }
+	    
+	    try {
+		Thread.sleep(2);
+	    } catch (InterruptedException ex) {
+		ex.printStackTrace();
+	    }
 	}
     }
-    
 }

@@ -1,12 +1,11 @@
 package br.unip.pandora.world;
 
-import br.unip.pandora.Generator;
+import br.unip.pandora.engine.Generator;
 import br.unip.pandora.entity.Entity;
 import br.unip.pandora.entity.Soul;
 import br.unip.pandora.entity.Water;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
@@ -83,7 +82,7 @@ public class World {
 
     private void drawTerrain(){
 	int border = gridSize; //duplicated for readability
-	Graphics2D g = (Graphics2D) terrain.getGraphics();
+	Graphics g = terrain.getGraphics();
 	
 	//grass
 	g.setColor(soilColor);
@@ -116,8 +115,7 @@ public class World {
 		g.fillRect(x, y, gridSize-2, gridSize-2);
 	    }
 	}
-	
-	g.dispose(); //needed?
+
     }
     
     public BufferedImage drawImage(){

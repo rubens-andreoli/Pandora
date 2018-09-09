@@ -1,18 +1,17 @@
 package br.unip.pandora.entity;
 
+import java.awt.Graphics;
 
-public class Water implements Entity{
-
-    public static final int ID = 1;
+public class Water extends Entity{ //TODO: water as entity or tile?
     
-    @Override
-    public int getId() {
-	return ID;
+    public Water(){
+	super(WATER, 0, 0);
     }
 
     @Override
-    public int getMetadata() {
-	return 0;
-    }
- 
+    public void update() {}
+
+    @Override
+    public void draw(Graphics g) {}
+
 }

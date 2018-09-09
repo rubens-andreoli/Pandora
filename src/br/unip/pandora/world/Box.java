@@ -1,15 +1,20 @@
 package br.unip.pandora.world;
 
-import br.unip.pandora.Game;
+import br.unip.pandora.engine.Game;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 
 public class Box extends Game {
 
+    public final static int PAUSE = KeyEvent.VK_SPACE;
+    public final static int SPEED_UP = KeyEvent.VK_PAGE_UP;
+    public final static int SPEED_DOWN = KeyEvent.VK_PAGE_DOWN;
+    public final static int VOLUME_UP = KeyEvent.VK_ADD;
+    public final static int VOLUME_DOWN = KeyEvent.VK_SUBTRACT;
+    
     //objects
     private World world;
     private Clock clock;
@@ -41,7 +46,7 @@ public class Box extends Game {
     
     public Box() {
 	super("PANDORA", 640, 480, 2, 60);
-	
+
 	hourRate = 1*ups;
 	speakerDuration = 2*ups;
 	
@@ -49,16 +54,29 @@ public class Box extends Game {
 	clock = new Clock(infoWidth, 24, 365);
 	speaker = new Speaker();
     }
-   
+
     @Override
     public void tick() {
+	if(input.isTyped(PAUSE)) isPaused = !isPaused;
+	if(input.isPressed(SPEED_UP)) if(hourRate>2)hourRate-=2;
+	if(input.isPressed(SPEED_DOWN)) hourRate+=2;
+	if(input.isTyped(VOLUME_UP)){
+	    if(volume<=90) volume+=10;
+	    speakerTimer=speakerDuration;
+	}
+	if(input.isTyped(VOLUME_DOWN)){
+	    if(volume>=10) volume-=10;
+	    speakerTimer=speakerDuration;
+	}
+	
 	if(speakerTimer>0) speakerTimer--;
+	
 	if(!isPaused){ 
 	    tick++;
 	    if(tick >= hourRate){
 		hour++;
 		tick = 0;
-	        world.update(); //update each hour? half hour?
+	        world.update(); //TODO: update each hour? half hour?
 	    }
 	}
     }
@@ -68,7 +86,7 @@ public class Box extends Game {
 	if(!isPaused){
 	    //backgound
 	    g.setColor(backColor);
-	    g.fillRect(0, 0, infoWidth+5, height);
+	    g.fillRect(0, 0, infoWidth+5, height); //TODO: clear
 
 	    g.drawImage(clock.drawImage(hour), 0, 0, null);
 	    //name
@@ -104,43 +122,7 @@ public class Box extends Game {
 	    g.setColor(backColor);
 	    g.fillRect(5, 0, 35, 30);
 	}
+	
     }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {
-	//TODO: select soul to display info or clear if out
-    }
-    
-    @Override
-    public void keyPressed(KeyEvent e) {
-	switch(e.getKeyCode()){
-	    case KeyEvent.VK_SPACE:
-		isPaused = !isPaused;
-		break;
-	    case KeyEvent.VK_ADD:
-		if(volume<=90) volume+=10;
-		speakerTimer=speakerDuration;
-		break;
-	    case KeyEvent.VK_SUBTRACT:
-		if(volume>=10) volume-=10;
-		speakerTimer=speakerDuration;
-		break;
-	    case KeyEvent.VK_PAGE_UP:
-		if(hourRate>2)hourRate-=2;
-		break;
-	    case KeyEvent.VK_PAGE_DOWN:
-		hourRate+=2;
-		break;
-	    default:
-		break;
-	}
-    }
-
-    public @Override void mouseReleased(MouseEvent e) {}
-    public @Override void mousePressed(MouseEvent e) {}   
-    public @Override void mouseEntered(MouseEvent e) {}
-    public @Override void mouseExited(MouseEvent e) {}
-    public @Override void keyTyped(KeyEvent e) {}
-    public @Override void keyReleased(KeyEvent e) {}
-    
 }

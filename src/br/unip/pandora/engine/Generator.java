@@ -1,4 +1,4 @@
-package br.unip.pandora;
+package br.unip.pandora.engine;
 
 import java.util.Random;
 

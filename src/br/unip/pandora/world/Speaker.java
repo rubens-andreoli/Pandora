@@ -34,6 +34,7 @@ public class Speaker {
 	if(volume >= 25) g.drawArc(-20, -9, 40, 40, -15, 30);
 	if(volume >= 50) g.drawArc(-15, -9, 40, 40, -25, 50);
 	if(volume >= 75) g.drawArc(-10, -9, 40, 40, -35, 70);
+	
 	return image;
     }
     
