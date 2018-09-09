@@ -5,7 +5,7 @@ import java.awt.Graphics;
 public class Water extends Entity{ //TODO: water as entity or tile?
     
     public Water(){
-	super(WATER, 0, 0);
+	super(1, 0, 0);
     }
 
     @Override

@@ -4,13 +4,11 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
-//TODO: implement size
+public class Speaker { //TODO: implement size
 
-public class Speaker {
-
+    //ui
     private Color color = Color.WHITE;
     private Color noSoundColor = Color.RED;
-    private Color backColor = Color.BLACK;
     
     private BufferedImage image;
 
@@ -21,8 +19,7 @@ public class Speaker {
     public BufferedImage drawImage(int volume){
 	Graphics g = image.getGraphics();
 	
-	g.setColor(backColor);
-	g.fillRect(0, 0, 35, 25);
+	g.clearRect(0, 0, 35, 25);
 	
 	g.setColor(color);
 	g.fillPolygon(new int[]{0, 2, 15, 15, 3, 0}, new int[]{8, 8, 1, 21, 16, 16}, 6);

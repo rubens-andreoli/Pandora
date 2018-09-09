@@ -5,7 +5,7 @@ import java.awt.event.WindowEvent;
 
 public class Engine {
     
-    public static final int DEFAULT_UPS = 60;
+    public static final int DEFAULT_TICK_RATE = 60;
     
     //loop
     private double nanoTick;
@@ -15,31 +15,39 @@ public class Engine {
     private Thread thread;
     private Display display;
     private Game game;
-    private InputHandler input;
+    private KeyHandler key;
+    private MouseHandler mouse;
     
-    public Engine(Game game, Display display, InputHandler input) {
+    public Engine(Game game, Display display, KeyHandler key, MouseHandler mouse) {
 	this.game = game;
 	this.display = display;
-	this.input = input;
-	nanoTick = 1000000000D/game.ups;
+	this.key = key;
+	this.mouse = mouse;
+	nanoTick = 1000000000D/game.tickRate;
     }
       
     public Engine(Game game){
-	this(game, new Display(game.title, game.width, game.height, game.scale), new InputHandler(game.scale));
+	this(game, 
+		new Display(game.title, game.width, game.height, game.scale), 
+		new KeyHandler(),
+		new MouseHandler(game.scale)
+	);
     }
     
     public void start(){
 	if(running) return;
 	running = true;
 	
-	game.setInputHandler(input);
+	game.setKeyHandler(key);
+	game.setMouseHandler(mouse);
 	display.addWindowListener(new WindowAdapter(){
 	    @Override
 	    public void windowClosing(WindowEvent e) {
 		stop();
 	    }    
 	});
-	display.addInputHandler(input); //TODO: disable or enable listeners
+	display.addKeyHandler(key);
+	display.addMouseHandler(mouse);
 	display.setVisible(true);
 	
 	thread = new Thread(() -> {
@@ -69,22 +77,22 @@ public class Engine {
 	int frames = 0;
 	
 	long lastTimer = System.currentTimeMillis();
-	double deltaUps = 0;
+	double delta = 0;
 	
 //	boolean shouldRender = false;  //limit to 1 render for update
 	
 	while(running){
 	    now = System.nanoTime();
-	    deltaUps += (now-lastTime)/nanoTick;
+	    delta += (now-lastTime)/nanoTick;
 	    lastTime = now;
 
 //	    shouldRender = false;
 
-	    while(deltaUps >= 1){
+	    while(delta >= 1){
 		ticks++;
 		game.tick();
-		input.tick();
-		deltaUps -= 1;
+		key.tick();
+		delta -= 1;
 //		shouldRender = true;
 	    }
 	    
@@ -101,11 +109,11 @@ public class Engine {
 		ticks = 0;
 	    }
 	    
-	    try {
-		Thread.sleep(2);
-	    } catch (InterruptedException ex) {
-		ex.printStackTrace();
-	    }
+//	    try {
+//		Thread.sleep(2);
+//	    } catch (InterruptedException ex) {
+//		ex.printStackTrace();
+//	    }
 	}
     }
 }

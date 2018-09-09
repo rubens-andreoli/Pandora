@@ -3,11 +3,7 @@ package br.unip.pandora.entity;
 import java.awt.Graphics;
 
 public abstract class Entity {
-    
-    public static final int WATER = 1;
-    public static final int FOOD = 2;
-    public static final int SOUL = 3;
-    
+       
     protected int id, metadata;
     protected int x, y;
     

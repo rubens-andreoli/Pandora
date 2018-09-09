@@ -10,7 +10,7 @@ public class Food extends Entity{
     private static int max_saturation = 50;
 
     public Food(int x, int y) {
-	super(FOOD, x, y);
+	super(2, x, y);
 	metadata = Generator.randomBetween(min_saturation, max_saturation);
     }
     

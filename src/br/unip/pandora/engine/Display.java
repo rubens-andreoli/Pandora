@@ -35,7 +35,7 @@ public class Display {
 	panel.setPreferredSize(d);
 	panel.setFocusable(false);
 	
-	buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+	buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB); //TODO: ARGB?
 	gBuffer = (Graphics2D) buffer.getGraphics();
 	
 	frame = new JFrame(title);
@@ -79,10 +79,13 @@ public class Display {
 	frame.addWindowListener(l);
     }
     
-    public void addInputHandler(InputHandler i) {
-	frame.addKeyListener(i.getKeyListener());
-	panel.addMouseListener(i.getMouseListener());
-	panel.addMouseMotionListener(i.getMouseMotionListener());
+    public void addKeyHandler(KeyHandler k) {
+	frame.addKeyListener(k.getKeyListener());
+    }
+    
+    public void addMouseHandler(MouseHandler m){
+    	panel.addMouseListener(m.getMouseListener());
+	panel.addMouseMotionListener(m.getMouseMotionListener());
     }
 
     public void appendTitle(String s){

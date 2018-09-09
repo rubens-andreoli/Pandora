@@ -14,7 +14,6 @@ public class Clock {
     private Color moonColor = Color.GRAY;
     private Font textFont = new Font(Font.MONOSPACED, Font.PLAIN, 9);
     private Color textColor = Color.WHITE;
-    private Color backColor = Color.BLACK;
     private int width, height;
     
     //orbit
@@ -39,9 +38,8 @@ public class Clock {
     public BufferedImage drawImage(int hour){
 	Graphics g = image.getGraphics();
 
-	//backgound
-	g.setColor(backColor);
-	g.fillRect(0, 0, width, height);
+	//clear
+	g.clearRect(0, 0, width, height);
 	
 	//sun-moon
 	double radian = orbitSpeed * (hour + dayHours/2);
@@ -54,8 +52,7 @@ public class Clock {
 	starY = orbitY + (orbitRadius*Math.sin(radian));
 	g.setColor(moonColor);
 	g.fillOval((int)(starX - moonSize/2), (int)(starY - moonSize/2), moonSize, moonSize);
-	g.setColor(backColor);
-	g.fillRect(0, orbitRadius+26, width, orbitRadius);
+	g.clearRect(0, orbitRadius+26, width, orbitRadius);
 	
 	//time
 	g.setFont(textFont);
@@ -68,5 +65,8 @@ public class Clock {
 	
 	return image;
     }
-    
+
+    public int getHeight() {
+	return height;
+    }
 }
