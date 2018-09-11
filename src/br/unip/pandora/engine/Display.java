@@ -1,5 +1,6 @@
 package br.unip.pandora.engine;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -17,7 +18,7 @@ public class Display {
     private String title;
     private int width, height, scale;
     
-    private JFrame frame;
+    private static JFrame frame = new JFrame(); //TODO: better solution for changing cursor?
     private JPanel panel;
     private BufferedImage buffer;
     private Graphics2D gBuffer;
@@ -38,7 +39,8 @@ public class Display {
 	buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB); //TODO: ARGB?
 	gBuffer = (Graphics2D) buffer.getGraphics();
 	
-	frame = new JFrame(title);
+//	frame = new JFrame(title);
+	frame.setTitle(title);
 	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	frame.setResizable(false);
 	frame.setContentPane(panel);
@@ -92,4 +94,8 @@ public class Display {
 	frame.setTitle(String.format("%s [%s]", title, s));
     }
   
+    public static void setCursor(Cursor c){
+	frame.setCursor(c);
+    }
+    
 }
