@@ -1,4 +1,4 @@
-package br.unip.pandora.world;
+package br.unip.pandora.box;
 
 import java.awt.Color;
 import java.awt.Font;

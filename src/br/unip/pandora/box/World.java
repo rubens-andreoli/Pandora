@@ -1,9 +1,8 @@
-package br.unip.pandora.world;
+package br.unip.pandora.box;
 
-import br.unip.pandora.engine.Generator;
-import br.unip.pandora.entity.Entity;
-import br.unip.pandora.entity.Soul;
-import br.unip.pandora.entity.Water;
+import br.unip.pandora.box.entity.Creature;
+import br.unip.pandora.box.entity.Entity;
+import br.unip.pandora.box.entity.Water;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
@@ -13,21 +12,15 @@ public class World {
     
     //ui
     private Color soilColor = new Color(87, 142, 96);
-    private Color waterColor = Color.BLUE;
     private Color borderColor = Color.GRAY;
     private int width, height;
     
-    //map control
+    //map
     private int gridSize = 6;
     private int rows, cols;
     private Entity[][] map;
 //    private Food[] foodArray = new Food[20];
-    private ArrayList<Soul> soulList = new ArrayList<>();
-    
-    //water generation
-    private int numCenters = 60; //waterbody size
-    private int waterChance = 8; //waterbody chance
-//    private int waterLimit = 4; //waterbody limit
+    private ArrayList<Creature> soulList = new ArrayList<>();
 
     private BufferedImage terrain, image;
     
@@ -39,47 +32,12 @@ public class World {
 	rows = (width-(2*gridSize))/gridSize;
 	cols = (height-(2*gridSize))/gridSize;
 	map = new Entity[rows][cols];
-	generateWater();
+	Water.generateWater(map, rows, cols);
 	drawTerrain();
 	//TODO: add food
 	//TODO: add souls
     }
     
-    private void generateWater() { //Voronoi Diagram
-	int[] centerX = new int[numCenters];
-	int[] centerY = new int[numCenters];
-	boolean[] isWater = new boolean[numCenters];
-//	int numWater = 0;
-	for(int i = 0; i < numCenters; i++) {
-	    centerX[i] = Generator.RANDOM.nextInt(rows);
-	    centerY[i] = Generator.RANDOM.nextInt(cols);
-//	    if(numWater <= waterLimit){
-		isWater[i] = Generator.randomBoolean(waterChance);
-//		numWater++;
-//	    }
-	}
-	int n = 0;
-	Water water = new Water(); //all water are the same
-	for (int x = 0; x < rows; x++) {
-	    for (int y = 0; y < cols; y++) {
-		n = 0;
-		for (int i = 0; i < numCenters; i++) {
-		    if (distance(centerX[i], x, centerY[i], y) < distance(centerX[n], x, centerY[n], y)) {
-			n = i;
-		    }
-		}
-		map[x][y] = isWater[n]? water:null;
-	    }
-	}
-    }
-    
-    private double distance(int x1, int x2, int y1, int y2) {
-	double d;
-	d = Math.abs(x1 - x2) + Math.abs(y1 - y2); // Manhattan
-//	d = Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2)); // Euclidian
-	return d;
-    }
-
     private void drawTerrain(){
 	int border = gridSize; //duplicated for readability
 	Graphics g = terrain.getGraphics();
@@ -89,7 +47,7 @@ public class World {
 	g.fillRect(border, border, width-(2*border), height-(2*border));
 	
 	//water
-	g.setColor(waterColor);
+	g.setColor(Water.COLOR);
 	for (int x = 0; x < rows; x++) {
 	    for (int y = 0; y < cols; y++) {
 		if(map[x][y] != null && map[x][y].getId() == 1){

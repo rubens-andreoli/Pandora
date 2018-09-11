@@ -11,8 +11,6 @@ public abstract class Game {
     protected String title;
     protected int width, height, scale;
     protected int tickRate;
-    protected KeyHandler key;
-    protected MouseHandler mouse;
 
     public Game(String title, int width, int height, int scale, int tickRate) {
 	this.title = title;
@@ -22,8 +20,8 @@ public abstract class Game {
 	this.tickRate = tickRate;
     }
     
-    public Game(String title, int width, int height){
-	this(title, width, height, DEFAULT_SCALE, DEFAULT_TICK_RATE);
+    public Game(String title, int width, int height, int scale){
+	this(title, width, height, scale, DEFAULT_TICK_RATE);
     }
     
     public Game(String title) {
@@ -31,14 +29,7 @@ public abstract class Game {
     }
  
     public abstract void tick();
+    public abstract void input(KeyHandler key, MouseHandler mouse);
     public abstract void draw(Graphics2D g);
-   
-    public void setKeyHandler(KeyHandler k){
-	key = k;
-    }
-    
-    public void setMouseHandler(MouseHandler m){
-	mouse = m;
-    }
     
 }

@@ -1,7 +1,7 @@
 package br.unip.pandora;
 
 import br.unip.pandora.engine.Engine;
-import br.unip.pandora.world.Box;
+import br.unip.pandora.box.Box;
 
 public class Laucher {
 

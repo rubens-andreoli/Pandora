@@ -1,6 +1,3 @@
-package br.unip.pandora.entity;
-
-import br.unip.pandora.entity.movement_rules.Movement;
 import java.awt.Point;
 
 public class Body {

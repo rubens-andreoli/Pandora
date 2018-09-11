@@ -1,6 +1,8 @@
-package br.unip.pandora.world;
+package br.unip.pandora.box;
 
 import br.unip.pandora.engine.Game;
+import br.unip.pandora.engine.KeyHandler;
+import br.unip.pandora.engine.MouseHandler;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
@@ -58,19 +60,6 @@ public class Box extends Game {
 
     @Override
     public void tick() {
-	//TODO: ajust input speed
-	if(key.isTyped(PAUSE)) isPaused = !isPaused;
-	if(key.isPressed(SPEED_UP)) if(hourRate>2)hourRate-=2;
-	if(key.isPressed(SPEED_DOWN)) hourRate+=2;
-	if(key.isTyped(VOLUME_UP)){
-	    if(volume<=90) volume+=10;
-	    speakerTimer=speakerDuration;
-	}
-	if(key.isTyped(VOLUME_DOWN)){
-	    if(volume>=10) volume-=10;
-	    speakerTimer=speakerDuration;
-	}
-	
 	if(speakerTimer>0) speakerTimer--;
 	
 	if(!isPaused){ 
@@ -80,6 +69,22 @@ public class Box extends Game {
 		tick = 0;
 	        world.update(); //TODO: update each hour? half hour?
 	    }
+	}
+    }
+    
+    @Override
+    public void input(KeyHandler key, MouseHandler mouse) {
+	//TODO: ajust input speed
+	if(key.isReleased(PAUSE)) isPaused = !isPaused;
+	if(key.isPressed(SPEED_UP)) if(hourRate>2)hourRate-=2;
+	if(key.isPressed(SPEED_DOWN)) hourRate+=2;
+	if(key.isTyped(VOLUME_UP)){
+	    if(volume<=90) volume+=10;
+	    speakerTimer=speakerDuration;
+	}
+	if(key.isReleased(VOLUME_DOWN)){
+	    if(volume>=10) volume-=10;
+	    speakerTimer=speakerDuration;
 	}
     }
 

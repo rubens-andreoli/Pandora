@@ -1,4 +1,4 @@
-package br.unip.pandora.entity;
+
 
 public class Soul {
     

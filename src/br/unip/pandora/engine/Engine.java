@@ -38,8 +38,6 @@ public class Engine {
 	if(running) return;
 	running = true;
 	
-	game.setKeyHandler(key);
-	game.setMouseHandler(mouse);
 	display.addWindowListener(new WindowAdapter(){
 	    @Override
 	    public void windowClosing(WindowEvent e) {
@@ -91,7 +89,9 @@ public class Engine {
 	    while(delta >= 1){
 		ticks++;
 		game.tick();
+		game.input(key, mouse);
 		key.tick();
+		mouse.tick();
 		delta -= 1;
 //		shouldRender = true;
 	    }
@@ -116,4 +116,5 @@ public class Engine {
 //	    }
 	}
     }
+    
 }
