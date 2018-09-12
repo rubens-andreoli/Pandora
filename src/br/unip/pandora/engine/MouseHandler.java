@@ -4,15 +4,19 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
 public class MouseHandler {
     
     private MouseListener ml;
     private MouseMotionListener mml;
+    private MouseWheelListener mwl;
     
     private boolean click, released;
     private int button, modifier;
     private int mouseX, mouseY;
+    private int wheel;
 
     public MouseHandler(int scale){
 	ml = new MouseListener(){
@@ -50,6 +54,13 @@ public class MouseHandler {
 	    }
 	};
 	
+	mwl = new MouseWheelListener(){
+	    @Override
+	    public void mouseWheelMoved(MouseWheelEvent e) {
+		wheel += e.getWheelRotation();
+	    }
+	};
+	
     }
     
     public MouseHandler(){
@@ -59,6 +70,7 @@ public class MouseHandler {
     public void tick(){
 	if(released) button = -1;
 	click = false;
+	wheel = 0;
     }
 
     public boolean isPressed(int button){
@@ -80,8 +92,9 @@ public class MouseHandler {
     public int getX() {return mouseX;}
     public int getY() {return mouseY;}
     public int getModifier() {return modifier;}
+    public int getWheel(){return wheel;}
 
     public MouseListener getMouseListener() {return ml;}
     public MouseMotionListener getMouseMotionListener() {return mml;}
-    
+    public MouseWheelListener getMouseWheelListener() {return mwl;}
 }

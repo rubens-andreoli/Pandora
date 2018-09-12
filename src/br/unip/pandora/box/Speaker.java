@@ -7,7 +7,7 @@ import java.awt.image.BufferedImage;
 public class Speaker { //TODO: implement size
 
     //ui
-    private Color color = Color.WHITE;
+    private Color color = Color.YELLOW;
     private Color noSoundColor = Color.RED;
     
     private BufferedImage image;

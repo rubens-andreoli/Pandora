@@ -32,18 +32,19 @@ public class Display {
 	panel = new JPanel();
 	Dimension d = new Dimension(width*scale, height*scale);
 	panel.setPreferredSize(d);
-	panel.setPreferredSize(d);
-	panel.setPreferredSize(d);
+	panel.setMaximumSize(d);
+	panel.setMinimumSize(d);
 	panel.setFocusable(false);
 	
-	buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB); //TODO: ARGB?
+	buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 	gBuffer = (Graphics2D) buffer.getGraphics();
 	
-//	frame = new JFrame(title);
 	frame.setTitle(title);
 	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	frame.setResizable(false);
 	frame.setContentPane(panel);
+	frame.pack();
+	frame.setLocationRelativeTo(null);
     }
     
     public Display(String title){
@@ -52,8 +53,7 @@ public class Display {
     
     public void setVisible(boolean b){
 	if(b){ 
-	    frame.pack();
-	    frame.setLocationRelativeTo(null);
+	    frame.pack(); //packed again to prevent frame with wrong size
 	    frame.requestFocus();
 	    java.awt.EventQueue.invokeLater(() -> {
 		frame.setVisible(true);
@@ -88,6 +88,7 @@ public class Display {
     public void addMouseHandler(MouseHandler m){
     	panel.addMouseListener(m.getMouseListener());
 	panel.addMouseMotionListener(m.getMouseMotionListener());
+	panel.addMouseWheelListener(m.getMouseWheelListener());
     }
 
     public void appendTitle(String s){

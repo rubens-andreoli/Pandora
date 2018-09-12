@@ -26,12 +26,20 @@ public class Engine {
 	nanoTick = 1000000000D/game.tickRate;
     }
       
-    public Engine(Game game){
+    public Engine(Game game, String frameTitle, int scale){
 	this(game, 
-		new Display(game.title, game.width, game.height, game.scale), 
+		new Display(frameTitle, game.width, game.height, scale), 
 		new KeyHandler(),
-		new MouseHandler(game.scale)
+		new MouseHandler(scale)
 	);
+    }
+    
+    public Engine(Game game, int scale){
+	this(game, game.title, scale);
+    }
+    
+    public Engine(Game game){
+	this(game, Display.DEFAULT_SCALE);
     }
     
     public void start(){
@@ -88,8 +96,7 @@ public class Engine {
 
 	    while(delta >= 1){
 		ticks++;
-		game.tick();
-		game.input(key, mouse);
+		game.tick(key, mouse);
 		key.tick();
 		mouse.tick();
 		delta -= 1;

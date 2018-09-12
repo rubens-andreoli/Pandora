@@ -13,7 +13,7 @@ public class Clock {
     private int moonSize = 10;
     private Color moonColor = Color.GRAY;
     private Font textFont = new Font(Font.MONOSPACED, Font.PLAIN, 9);
-    private Color textColor = Color.WHITE;
+    private Color textColor = Color.GRAY;
     private int width, height;
     
     //orbit
