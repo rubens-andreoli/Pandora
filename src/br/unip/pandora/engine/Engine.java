@@ -102,7 +102,7 @@ public class Engine {
 		delta -= 1;
 //		shouldRender = true;
 	    }
-	    
+
 //	    if(shouldRender){
 		frames++;
 		game.draw(display.getGraphics());

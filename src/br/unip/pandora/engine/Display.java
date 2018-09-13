@@ -19,6 +19,7 @@ public class Display {
     private int width, height, scale;
     
     private static JFrame frame = new JFrame(); //TODO: better solution for changing cursor?
+    private static Cursor cursor;
     private JPanel panel;
     private BufferedImage buffer;
     private Graphics2D gBuffer;
@@ -96,7 +97,10 @@ public class Display {
     }
   
     public static void setCursor(Cursor c){
-	frame.setCursor(c);
+	if(cursor == null || cursor != c){ 
+	    cursor = c;
+	    frame.setCursor(c);
+	}
     }
     
 }
