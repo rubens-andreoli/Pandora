@@ -2,6 +2,7 @@ package br.unip.pandora.box;
 
 import br.unip.pandora.box.entity.Creature;
 import br.unip.pandora.box.entity.Entity;
+import br.unip.pandora.box.entity.Food;
 import br.unip.pandora.box.entity.Water;
 import br.unip.pandora.engine.Generator;
 import java.awt.Color;
@@ -16,6 +17,7 @@ public class World {
     
     //terrain generation
     private BufferedImage terrain;
+    private int gridSize = 6;
     private int terrainWidth, terrainHeight;
     private static final Color GRASS_COLOR = new Color(87, 142, 96);
     private int numCenters = 120; //terrain patch sizes/number
@@ -24,50 +26,67 @@ public class World {
     private int dirtChance = 40; //dirt chance
     private static final Color DIRT_COLOR = new Color(145, 118, 83);
     private HashSet<Point> dirtPoints;
+    private HashSet<Point> waterPoints;
     private boolean drawGrid = true;
     private static final Color GRID_COLOR = new Color(230, 230, 230, 90);
     private boolean drawNumbers = false;
     private static final Font NUM_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 8);
     private static final Color NUM_COLOR = Color.YELLOW;
     
-    //map
-    private BufferedImage map;
-    private int gridSize = 6;
-    private int rows;
-    private int cols;
-    private Entity[][] entityMap;
-    private ArrayList<Creature> souls; 
-    
     //minimap
     private BufferedImage minimap;
     private int minimapWidth, minimapHeight;
     private float minimapXScale, minimapYScale;
     
-    public World(int rows, int cols, int minimapWidth, int minimapHeight) {
-	this.rows = rows;
-	this.cols = cols;
+    //drawmap
+    private BufferedImage drawMap;
+    private int drawWidth, drawHeight;
+
+    //map
+    private int rows = 100; //77
+    private int cols = 100;
+    private Entity[][] entityMap;
+    
+    //entity control
+    private ArrayList<Food> foodList;
+    private ArrayList<Creature> soulList; 
+    
+    public World(int drawWidth, int drawHeight, int minimapWidth, int minimapHeight) {
+	this.drawWidth = drawWidth;
+	this.drawHeight = drawHeight;
 	this.minimapWidth = minimapWidth;
 	this.minimapHeight = minimapHeight;
 	
 	terrainWidth = gridSize*cols+1;
 	terrainHeight = gridSize*rows+1;
+	if(Math.min(terrainWidth, terrainHeight) < drawWidth){
+	    gridSize = (int)Math.ceil(drawWidth/Math.min((float)rows, cols)) ;
+	    terrainWidth = gridSize*cols+1;
+	    terrainHeight = gridSize*rows+1;
+	}
 	minimapXScale = minimapWidth/(float)terrainWidth;
 	minimapYScale = minimapHeight/(float)terrainHeight;
 
 	entityMap = new Entity[cols][rows];
 	terrain = new BufferedImage(terrainWidth, terrainHeight, BufferedImage.TYPE_INT_RGB);
+	drawMap = new BufferedImage(drawWidth, drawHeight, BufferedImage.TYPE_INT_RGB);
 	minimap = new BufferedImage(minimapWidth, minimapHeight, BufferedImage.TYPE_INT_RGB);
-	souls = new ArrayList<>();
+	soulList = new ArrayList<>();
+	foodList = new ArrayList<>();
 	dirtPoints = new HashSet<>();
+	waterPoints = new HashSet<>();
 	
 	generateTerrain(); 
 	drawTerrain();
 	//TODO: add food
 	//TODO: add souls
+	
+	dirtPoints = null; //only used for generate-draw
+	waterPoints = null; //only used for draw
     }
     
-    public World(int worldSize, int minimapSize){
-	this(worldSize, worldSize, minimapSize, minimapSize);
+    public World(int drawSize, int minimapSize){
+	this(drawSize, drawSize, minimapSize, minimapSize);
     }
 
     //<editor-fold defaultstate="collapsed" desc="TERRAIN GENERATION">
@@ -99,6 +118,7 @@ public class World {
 		}
 		if(isWater[n]){
 		    entityMap[x][y] = water;
+		    waterPoints.add(new Point(x, y));
 		}else if(isDirt[n]){
 		    dirtPoints.add(new Point(x, y));
 		}
@@ -125,12 +145,8 @@ public class World {
 	
 	//water
 	gT.setColor(Water.COLOR);
-	for (int x = 0; x < cols; x++) {
-	    for (int y = 0; y < rows; y++) {
-		if(entityMap[x][y] != null && entityMap[x][y].getId() == 1){
-		    gT.fillRect(x*gridSize, y*gridSize, gridSize+1, gridSize+1);
-		}
-	    }
+	for(Point p : waterPoints){
+	    gT.fillRect(p.x*gridSize, p.y*gridSize, gridSize+1, gridSize+1);
 	}
 	
 	//dirt
@@ -162,25 +178,52 @@ public class World {
     //</editor-fold>
  
     public void update() {
-	//TODO: update food; remove from map if degradated or eaten
+	//TODO: update food; remove from map if degraded or eaten
 	//TODO: update souls
     }
 
-    public BufferedImage drawImage(float xOffset, float yOffset, int width, int height) {
-	if(map == null) map = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-	Graphics g = map.getGraphics();
-	g.drawImage(terrain.getSubimage((int)xOffset, (int)yOffset, width, height), 0, 0, null);
-	//TODO: draw food in area
-	//TODO: draw souls in area
+    public BufferedImage drawImage(float xOffset, float yOffset) {
+	Graphics g = drawMap.getGraphics();
+	g.drawImage(terrain.getSubimage((int)xOffset, (int)yOffset, Math.min(drawWidth, terrainWidth), 
+		Math.min(drawWidth, terrainHeight)), 0, 0, null); //FIX: width and height on constructor, and enlarge gridSize if terrain is smaller
+	
+	int viewXStart = (int)(xOffset/gridSize);
+	int viewYStart = (int)(yOffset/gridSize);
+	int viewXEnd = (int) Math.min(viewXStart+(drawWidth/gridSize)+1, cols);
+	int viewYEnd = (int) Math.min(viewYStart+(drawHeight/gridSize)+1, rows);
+	
+//	long start = System.nanoTime();
+	for (int x=viewXStart; x < viewXEnd; x++) {
+	    for (int y=viewYStart; y < viewYEnd; y++) {
+		Entity e = entityMap[x][y];
+		if(e != null/* && e.getId() != 1*/){
+		    g.setColor(e.getColor());
+		    g.fillRect((int)(x*gridSize-xOffset)+1, (int)(y*gridSize-yOffset)+1, gridSize-1, gridSize-1);
+		}
+	    }
+	}
+//	System.out.print((System.nanoTime() - start)+" : ");
+//	start = System.nanoTime();
+//	int x = 0;
+//	int y = 0;
+//	for(Point p :  waterPoints){
+//	    x = p.x;
+//	    y = p.y;
+//	    if(x >= viewXStart && x <= viewXEnd && y >= viewYStart && y <= viewYEnd){
+//		g.setColor(Water.COLOR);
+//		g.fillRect((int)(x*gridSize-xOffset), (int)(y*gridSize-yOffset), gridSize+1, gridSize+1);
+//	    }
+//	}
+//	System.out.println(System.nanoTime() - start);
 //	g.dispose();
-	return map;
+	return drawMap;
     }
 
     public Entity getEntity(int x, int y){
 	return entityMap[x][y]; //TODO: or entity close
     }
     
-    public int getNumSouls(){ return souls.size();}
+    public int getNumSouls(){ return soulList.size();}
     public float getMinimapXScale(){return minimapXScale;}
     public float getMinimapYScale(){return minimapYScale;}
     public int getTerrainWidth() {return terrainWidth;}

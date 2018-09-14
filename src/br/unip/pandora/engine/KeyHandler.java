@@ -7,9 +7,9 @@ public class KeyHandler {
      
     public static final int NUM_KEYS = 256;
     
-    private KeyListener kl;
-    private boolean[] keyState;
-    private boolean[] keyLast;
+    private final KeyListener kl;
+    private final boolean[] keyState;
+    private final boolean[] keyLast;
     
     public KeyHandler() {
 	keyState = new boolean[NUM_KEYS];
@@ -18,7 +18,7 @@ public class KeyHandler {
 	kl = new KeyListener(){
 	    @Override
 	    public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() < NUM_KEYS) keyState[e.getKeyCode()] = true;
+		if (e.getKeyCode() < NUM_KEYS) keyState[e.getKeyCode()] = true; //there is no < 0 keyCode
 	    }
 	    @Override
 	    public void keyReleased(KeyEvent e) {

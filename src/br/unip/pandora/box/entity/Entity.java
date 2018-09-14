@@ -13,12 +13,13 @@ public abstract class Entity {
 	this.y = y;
     }
     
-    public int getId(){return id;}
-    public synchronized int getMetadata(){return metadata;}
-    public synchronized void setMetadata(int metadata){this.metadata = metadata;}
-    
     public abstract void update(Entity[][] map); 
     public abstract Color getColor();
     public abstract void use(Creature c);
+    
+    public int getId(){return id;}
+    public int getMetadata(){return metadata;}
+    public int getX(){return x;}
+    public int getY(){return y;}
   
 }

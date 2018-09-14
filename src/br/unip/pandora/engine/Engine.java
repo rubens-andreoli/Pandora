@@ -6,42 +6,48 @@ import java.awt.event.WindowEvent;
 public class Engine {
     
     public static final int DEFAULT_TICK_RATE = 60;
-    
+
     //loop
     private double nanoTick;
     private boolean running;
-    
+
     //parts
     private Thread thread;
     private Display display;
     private Game game;
     private KeyHandler key;
     private MouseHandler mouse;
-    
-    public Engine(Game game, Display display, KeyHandler key, MouseHandler mouse) {
+
+    public Engine(Game game, Display display, KeyHandler key, MouseHandler mouse, int tickRate) {
 	this.game = game;
 	this.display = display;
 	this.key = key;
 	this.mouse = mouse;
-	nanoTick = 1000000000D/game.tickRate;
+	nanoTick = 1000000000D/tickRate;
     }
-      
+
     public Engine(Game game, String frameTitle, int scale){
 	this(game, 
 		new Display(frameTitle, game.width, game.height, scale), 
 		new KeyHandler(),
-		new MouseHandler(scale)
+		new MouseHandler(scale),
+		DEFAULT_TICK_RATE
 	);
     }
-    
-    public Engine(Game game, int scale){
-	this(game, game.title, scale);
+ 
+    public Engine(Game game, int tickRate){
+	this(game, 
+		new Display(game.title, game.width, game.height), 
+		new KeyHandler(),
+		new MouseHandler(),
+		tickRate
+	);
     }
-    
+
     public Engine(Game game){
-	this(game, Display.DEFAULT_SCALE);
+	this(game, DEFAULT_TICK_RATE);
     }
-    
+
     public void start(){
 	if(running) return;
 	running = true;

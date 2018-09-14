@@ -6,10 +6,14 @@ import java.awt.Color;
 public class Food extends Entity {
 
     public static final int ID = 2;
+    public static final int NORMAL = 1;
+    public static final int POISON = 2;
     
-    private static int degradationRate = 1;
-    private static int min_saturation = 10;
-    private static int max_saturation = 50;
+    private static final float DEGRADETION_RATE = 1;
+    private static final int MIN_SATURATION = 10;
+    private static final int MAX_SATURATION = 50;
+    
+    private float saturation;
     
     private Color[] colors;
 
@@ -18,23 +22,28 @@ public class Food extends Entity {
 	colors = new Color[]{
 	    new Color(245, 220, 10),
 	    new Color(245, 180, 10),
-	    new Color(245, 145, 10)
+	    new Color(245, 145, 10),
+	    new Color(188, 10, 240),
+	    new Color(188, 50, 240),
+	    new Color(188, 100, 240)
 	};
-	metadata = Generator.randomBetween(min_saturation, max_saturation);
+
+	saturation = Generator.randomBetween(MIN_SATURATION, MAX_SATURATION);
     }
     
     @Override
     public void update(Entity[][] map){
-	if(metadata>0) metadata--;
-	if(metadata == 0)
-	    map[x][y] = null;
+	if(saturation>0) saturation -= DEGRADETION_RATE;
     }
 
     @Override
     public Color getColor() {
-	if(metadata >= 30) return colors[0]; //TODO: color.darker()?
-	else if(metadata >= 10) return colors[1];
-	else return colors[2];
+	int i = 0;
+	if(metadata == POISON) i = 3;
+	
+	if(metadata >= 30) return colors[i];
+	else if(metadata >= 10) return colors[i+1];
+	else return colors[i+2];
     }
 
     @Override

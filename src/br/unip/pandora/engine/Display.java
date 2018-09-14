@@ -48,6 +48,10 @@ public class Display {
 	frame.setLocationRelativeTo(null);
     }
     
+    public Display(String title, int width, int height){
+	this(title, width, height, DEFAULT_SCALE);
+    }
+    
     public Display(String title){
 	this(title, DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_SCALE);
     }

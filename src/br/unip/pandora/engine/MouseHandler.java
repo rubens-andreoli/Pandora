@@ -9,14 +9,13 @@ import java.awt.event.MouseWheelListener;
 
 public class MouseHandler {
     
-    private MouseListener ml;
-    private MouseMotionListener mml;
-    private MouseWheelListener mwl;
+    private final MouseListener ml;
+    private final MouseMotionListener mml;
+    private final MouseWheelListener mwl;
     
-    private boolean click, released;
+    private boolean click, wheel, released;
     private int button, modifier;
     private int mouseX, mouseY;
-    private int wheel;
 
     public MouseHandler(int scale){
 	ml = new MouseListener(){
@@ -57,7 +56,7 @@ public class MouseHandler {
 	mwl = new MouseWheelListener(){
 	    @Override
 	    public void mouseWheelMoved(MouseWheelEvent e) {
-		wheel += e.getWheelRotation();
+		wheel = true;
 	    }
 	};
 	
@@ -66,11 +65,11 @@ public class MouseHandler {
     public MouseHandler(){
 	this(Display.DEFAULT_SCALE);
     }
-    
+
     public void tick(){
 	if(released) button = -1;
 	click = false;
-	wheel = 0;
+	wheel = false;
     }
 
     public boolean isPressed(int button){
@@ -92,7 +91,7 @@ public class MouseHandler {
     public int getX() {return mouseX;}
     public int getY() {return mouseY;}
     public int getModifier() {return modifier;}
-    public int getWheel(){return wheel;}
+    public boolean isWheel(){return wheel;}
 
     public MouseListener getMouseListener() {return ml;}
     public MouseMotionListener getMouseMotionListener() {return mml;}

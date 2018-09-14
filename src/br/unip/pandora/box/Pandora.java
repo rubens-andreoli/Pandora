@@ -32,6 +32,8 @@ public class Pandora extends Game {
     private static final Font PAUSE_FONT = new Font(Font.MONOSPACED, Font.BOLD, 10);
     private static final Color PAUSE_COLOR = Color.RED;
     private static final String PAUSE_MSG = "PAUSED";
+    private static final BasicStroke DEFAULT_STROKE = new BasicStroke(1);
+    private static final BasicStroke BOLD_STROKE = new BasicStroke(2);
     
     //borders
     private boolean borderDrawn;
@@ -40,11 +42,11 @@ public class Pandora extends Game {
     
     //map and minimap
     private World world;
-    private BufferedImage minimap;
-    private float xOffset, yOffset, clickX, clickY;
     private Rectangle worldBounds;
+    private BufferedImage minimap;
     private Rectangle minimapBounds;
     private float minimapXScale, minimapYScale;
+    private float xOffset, yOffset, clickX, clickY;
     private static final Cursor HAND_CURSOR = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
     private static final Cursor MOVE_CURSOR = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
     private static final Cursor DEFAULT_CURSOR = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
@@ -54,17 +56,17 @@ public class Pandora extends Game {
     private Speaker speaker;
     private int infoWidth = 160;  //FIX: border don't change properly
     private int volume;
-    private int infoY;
+    private int clockHeight, infoY, terrainWidth, terrainHeight;
     
     //logic
     private boolean paused;
     private int tick, hour;
-    private float hourRate;
+    private float hourRate = 60;
 
     public Pandora() {
-	super("PANDORA", 640, 480, 60); //width 800
-	hourRate = 1*tickRate;
+	super("PANDORA", 640, 480); //800x480
 	clock = new Clock(infoWidth, 24, 365);
+	clockHeight = clock.getHeight();
 	worldBounds = new Rectangle(
 		infoWidth+borderSize+1, 
 		borderSize+1, 
@@ -73,16 +75,18 @@ public class Pandora extends Game {
 	);
 	minimapBounds = new Rectangle(
 		10+borderSize,
-		clock.getHeight()+13+borderSize,
+		clockHeight+13+borderSize,
 		infoWidth-18-(borderSize*2),
 		infoWidth-18-(borderSize*2)
 	);
-	world = new World(200, minimapBounds.width);
+	world = new World(worldBounds.width, worldBounds.height, minimapBounds.width, minimapBounds.height);
 	minimap = world.getMinimap();
 	minimapXScale = world.getMinimapXScale();
 	minimapYScale = world.getMinimapYScale();
 	infoY = minimapBounds.y+minimapBounds.height+borderSize;
-	speaker = new Speaker(FEATURE_COLOR, 2*tickRate);
+	terrainWidth = world.getTerrainWidth();
+	terrainHeight = world.getTerrainHeight();
+	speaker = new Speaker(FEATURE_COLOR, 120);
     }
 
     @Override
@@ -122,12 +126,7 @@ public class Pandora extends Game {
 		Display.setCursor(MOVE_CURSOR);
 		xOffset = -(mouse.getX()-(clickX));
 		yOffset = -(mouse.getY()-(clickY));
-		if(xOffset<0) xOffset = 0;
-		else if(xOffset+worldBounds.width > world.getTerrainWidth()) 
-		    xOffset = world.getTerrainWidth()-worldBounds.width; //TODO: getTerrainInfo only once, or pass on creation from here
-		if(yOffset<0) yOffset = 0;
-		else if(yOffset+worldBounds.height > world.getTerrainHeight()) 
-		    yOffset = world.getTerrainHeight()-worldBounds.height;
+		applyOffsetLimit();
 	    }else if(mouse.isClicked(1)){
 //		world.getEntity(clickX, clickY);
 	    }else{
@@ -138,12 +137,7 @@ public class Pandora extends Game {
 	    if(mouse.isClicked(1)){
 		xOffset = ((mouse.getX()-minimapBounds.x)/minimapXScale)-(worldBounds.width/2);
 		yOffset = ((mouse.getY()-minimapBounds.y)/minimapYScale)-(worldBounds.height/2);
-		if(xOffset<0) xOffset = 0;
-		else if(xOffset+worldBounds.width > world.getTerrainWidth()) 
-		    xOffset = world.getTerrainWidth()-worldBounds.width; //TODO: getTerrainInfo only once, or pass on creation from here
-		if(yOffset<0) yOffset = 0;
-		else if(yOffset+worldBounds.height > world.getTerrainHeight()) 
-		    yOffset = world.getTerrainHeight()-worldBounds.height;
+		applyOffsetLimit();
 	    }
 	}else{
 	    Display.setCursor(DEFAULT_CURSOR);
@@ -193,10 +187,10 @@ public class Pandora extends Game {
 	    g.setFont(PAUSE_FONT);
 	    g.setColor(PAUSE_COLOR);
 	    g.drawString(PAUSE_MSG, infoWidth/2-g.getFontMetrics(PAUSE_FONT).stringWidth(PAUSE_MSG)/2, 64);
-	    g.setStroke(new BasicStroke(2));
+	    g.setStroke(BOLD_STROKE);
 	    g.drawLine(infoWidth/2-4, 45, infoWidth/2-4, 55);
 	    g.drawLine(infoWidth/2+4, 45, infoWidth/2+4, 55);
-	    g.setStroke(new BasicStroke(1));
+	    g.setStroke(DEFAULT_STROKE);
 	}
 	
 	//speaker
@@ -205,12 +199,12 @@ public class Pandora extends Game {
 	//pandora hour per real second
 	g.setFont(INFO_FONT);
 	g.setColor(FEATURE_COLOR);
-	g.clearRect(0, clock.getHeight(), 108, 10);
-	g.drawString(String.format(HOUR_SEC_MASK, 60.0/hourRate), 10, clock.getHeight()+10);
+	g.clearRect(0, clockHeight, 108, 10);
+	g.drawString(String.format(HOUR_SEC_MASK, 60.0/hourRate), 10, clockHeight+10);
 	
 	//world
 	g.drawImage(
-		world.drawImage(xOffset, yOffset, worldBounds.width, worldBounds.height), 
+		world.drawImage(xOffset, yOffset), 
 		infoWidth+borderSize+1, 
 		borderSize+1, 
 		null
@@ -225,4 +219,14 @@ public class Pandora extends Game {
 	);
     }
 
+    private void applyOffsetLimit(){
+	if(xOffset<0) xOffset = 0;
+	else if(xOffset+worldBounds.width > terrainWidth) 
+	    xOffset = terrainWidth-worldBounds.width;
+	
+	if(yOffset<0) yOffset = 0;
+	else if(yOffset+worldBounds.height > terrainHeight) 
+	    yOffset = terrainHeight-worldBounds.height;
+    }
+    
 }

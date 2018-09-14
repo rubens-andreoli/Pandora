@@ -6,21 +6,15 @@ public abstract class Game {
     
     protected String title;
     protected int width, height;
-    protected int tickRate;
 
-    public Game(String title, int width, int height, int tickRate) {
+    public Game(String title, int width, int height) {
 	this.title = title;
 	this.width = width;
 	this.height = height;
-	this.tickRate = tickRate;
     }
-    
-    public Game(String title, int width, int height){
-	this(title, width, height, Engine.DEFAULT_TICK_RATE);
-    }
-    
+
     public Game(String title) {
-	this(title, Display.DEFAULT_WIDTH, Display.DEFAULT_HEIGHT, Engine.DEFAULT_TICK_RATE);
+	this(title, Display.DEFAULT_WIDTH, Display.DEFAULT_HEIGHT);
     }
  
     public abstract void tick(KeyHandler key, MouseHandler mouse);
