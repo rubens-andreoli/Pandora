@@ -3,23 +3,20 @@ package br.unip.pandora.box.entity;
 import java.awt.Color;
 
 public abstract class Entity {
-       
-    protected int id, metadata;
-    protected int x, y;
     
-    public Entity(int id, int x, int y){
+    public final byte id;
+    protected int x, y;
+    protected Color color;
+    
+    public Entity(byte id, int x, int y, Color color){
 	this.id = id;
 	this.x = x;
 	this.y = y;
+	this.color = color;
     }
     
-    public abstract void update(Entity[][] map); 
-    public abstract Color getColor();
-    public abstract void use(Creature c);
-    
-    public int getId(){return id;}
-    public int getMetadata(){return metadata;}
     public int getX(){return x;}
     public int getY(){return y;}
+    public Color getColor(){return color;}
   
 }

@@ -180,7 +180,7 @@ public class Pandora extends Game {
 	    g.clearRect(0, infoY+4, infoWidth, height-infoY);
 	    g.drawRect(10, infoY+4, infoWidth-20, height-infoY-20);
 	    //TODO: show entity info
-	    g.drawString(String.format(NUM_SOULS_MASK, world.getNumSouls()), 10, height-6);	
+//	    g.drawString(String.format(NUM_SOULS_MASK, world.getNumSouls()), 10, height-6);	
 
 	}else{
 	    //paused
@@ -199,7 +199,7 @@ public class Pandora extends Game {
 	//pandora hour per real second
 	g.setFont(INFO_FONT);
 	g.setColor(FEATURE_COLOR);
-	g.clearRect(0, clockHeight, 108, 10);
+	g.clearRect(0, clockHeight, 115, 11);
 	g.drawString(String.format(HOUR_SEC_MASK, 60.0/hourRate), 10, clockHeight+10);
 	
 	//world

@@ -49,7 +49,8 @@ public class World {
     
     //entity control
     private ArrayList<Food> foodList;
-    private ArrayList<Creature> soulList; 
+    private Creature creature;
+    private int foodAmount = 10;
     
     public World(int drawWidth, int drawHeight, int minimapWidth, int minimapHeight) {
 	this.drawWidth = drawWidth;
@@ -71,15 +72,16 @@ public class World {
 	terrain = new BufferedImage(terrainWidth, terrainHeight, BufferedImage.TYPE_INT_RGB);
 	drawMap = new BufferedImage(drawWidth, drawHeight, BufferedImage.TYPE_INT_RGB);
 	minimap = new BufferedImage(minimapWidth, minimapHeight, BufferedImage.TYPE_INT_RGB);
-	soulList = new ArrayList<>();
 	foodList = new ArrayList<>();
 	dirtPoints = new HashSet<>();
 	waterPoints = new HashSet<>();
 	
 	generateTerrain(); 
 	drawTerrain();
-	//TODO: add food
-	//TODO: add souls
+	generateFood();
+	creature = new Creature(0, 0); //TODO: random point...not water or food
+
+	creature.target(2, entityMap); //FIX: test
 	
 	dirtPoints = null; //only used for generate-draw
 	waterPoints = null; //only used for draw
@@ -176,10 +178,22 @@ public class World {
 	}
     }
     //</editor-fold>
+    
+    private void generateFood(){
+	int x, y;
+	for(int i=0; i<foodAmount; i++){
+	    do{
+		x = Generator.RANDOM.nextInt(cols);
+		y = Generator.RANDOM.nextInt(rows);
+	    }while(entityMap[x][y] != null);
+	    Food f = new Food(x, y);
+	    entityMap[x][y] = f;
+	    foodList.add(f);
+	}
+    }
  
     public void update() {
-	//TODO: update food; remove from map if degraded or eaten
-	//TODO: update souls
+	creature.update();
     }
 
     public BufferedImage drawImage(float xOffset, float yOffset) {
@@ -196,12 +210,15 @@ public class World {
 	for (int x=viewXStart; x < viewXEnd; x++) {
 	    for (int y=viewYStart; y < viewYEnd; y++) {
 		Entity e = entityMap[x][y];
-		if(e != null/* && e.getId() != 1*/){
+		if(e != null && e.id != 1){
 		    g.setColor(e.getColor());
 		    g.fillRect((int)(x*gridSize-xOffset)+1, (int)(y*gridSize-yOffset)+1, gridSize-1, gridSize-1);
 		}
 	    }
 	}
+	
+	g.setColor(creature.getColor());
+	g.fillRect((int)(creature.getX()*gridSize-xOffset)+1, (int)(creature.getY()*gridSize-yOffset)+1, gridSize-1, gridSize-1);
 //	System.out.print((System.nanoTime() - start)+" : ");
 //	start = System.nanoTime();
 //	int x = 0;
@@ -223,7 +240,7 @@ public class World {
 	return entityMap[x][y]; //TODO: or entity close
     }
     
-    public int getNumSouls(){ return soulList.size();}
+//    public int getNumSouls(){ return soulList.size();}
     public float getMinimapXScale(){return minimapXScale;}
     public float getMinimapYScale(){return minimapYScale;}
     public int getTerrainWidth() {return terrainWidth;}
