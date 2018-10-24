@@ -7,9 +7,9 @@ public class KeyHandler {
      
     public static final int NUM_KEYS = 256;
     
-    private final KeyListener kl;
-    private final boolean[] keyState;
-    private final boolean[] keyLast;
+    private KeyListener kl;
+    private boolean[] keyState;
+    private boolean[] keyLast;
     
     public KeyHandler() {
 	keyState = new boolean[NUM_KEYS];

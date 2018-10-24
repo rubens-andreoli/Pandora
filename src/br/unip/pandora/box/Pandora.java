@@ -1,5 +1,6 @@
 package br.unip.pandora.box;
 
+import br.unip.pandora.box.entity.Creature;
 import br.unip.pandora.engine.Display;
 import br.unip.pandora.engine.Game;
 import br.unip.pandora.engine.KeyHandler;
@@ -8,6 +9,7 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
@@ -28,7 +30,6 @@ public class Pandora extends Game {
     private static final String HOUR_SEC_MASK = "Hour/Sec: %.4f";
     private static final Font INFO_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 10);
     private static final Color INFO_COLOR = Color.GRAY;
-    private static final String NUM_SOULS_MASK = "Nº Souls: %d";
     private static final Font PAUSE_FONT = new Font(Font.MONOSPACED, Font.BOLD, 10);
     private static final Color PAUSE_COLOR = Color.RED;
     private static final String PAUSE_MSG = "PAUSED";
@@ -57,11 +58,12 @@ public class Pandora extends Game {
     private int infoWidth = 160;  //FIX: border don't change properly
     private int volume;
     private int clockHeight, infoY, terrainWidth, terrainHeight;
+    private Creature creature;
     
     //logic
     private boolean paused;
     private int tick, hour;
-    private float hourRate = 60;
+    private float hourRate = 30;
 
     public Pandora() {
 	super("PANDORA", 640, 480); //800x480
@@ -87,6 +89,7 @@ public class Pandora extends Game {
 	terrainWidth = world.getTerrainWidth();
 	terrainHeight = world.getTerrainHeight();
 	speaker = new Speaker(FEATURE_COLOR, 120);
+	creature = world.getCreature();
     }
 
     @Override
@@ -95,8 +98,8 @@ public class Pandora extends Game {
 	    tick++;
 	    if(tick >= hourRate){
 		hour++;
+		world.update(); //TODO: update each hour? half hour?
 		tick = 0;
-	        world.update(); //TODO: update each hour? half hour?
 	    }
 	}
 	
@@ -179,8 +182,15 @@ public class Pandora extends Game {
 	    g.setColor(INFO_COLOR);
 	    g.clearRect(0, infoY+4, infoWidth, height-infoY);
 	    g.drawRect(10, infoY+4, infoWidth-20, height-infoY-20);
-	    //TODO: show entity info
-//	    g.drawString(String.format(NUM_SOULS_MASK, world.getNumSouls()), 10, height-6);	
+	    g.drawString("---INFORMATIONS---", 25, infoY+15);
+	    g.drawString("Action:", 13, infoY+30);
+	    g.drawString("Life:"+creature.getLife(), 13, infoY+45);
+	    drawInfo(g, 13, infoY+50, (int)creature.getLife(), (int)creature.getLifeMax(), Color.YELLOW);
+	    g.drawString("Thirst:"+creature.getThirst(), 13, infoY+105);
+	    drawInfo(g, 13, infoY+110, (int)creature.getThirst(), (int)creature.getThirstMax(), Color.BLUE);
+	    g.drawString("Hunger:"+creature.getHunger(), 13, infoY+165);
+	    drawInfo(g, 13, infoY+170, (int)creature.getHunger(), (int)creature.getHungerMax(), Color.RED);
+	    //TODO: show entity info	
 
 	}else{
 	    //paused
@@ -217,6 +227,11 @@ public class Pandora extends Game {
 		(int)(worldBounds.width*minimapXScale), 
 		(int)(worldBounds.height*minimapYScale)
 	);
+	g.fillRect(Math.min((int)(minimapBounds.x+creature.getX()*(world.getGridSize()*minimapXScale)),minimapBounds.x+minimap.getWidth()-5),
+		Math.min((int)(minimapBounds.y+creature.getY()*(world.getGridSize()*minimapYScale)),minimapBounds.y+minimap.getHeight()-5), 
+		5, 
+		5
+	);
     }
 
     private void applyOffsetLimit(){
@@ -227,6 +242,23 @@ public class Pandora extends Game {
 	if(yOffset<0) yOffset = 0;
 	else if(yOffset+worldBounds.height > terrainHeight) 
 	    yOffset = terrainHeight-worldBounds.height;
+    }
+    
+    private void drawInfo(Graphics g, int x, int y, int value, int max, Color c){
+	int size = 20;
+	g.setColor(c);
+	int i = 0;
+	while(i<max/2){
+	    if(i < value)g.fillRect(x+(size*i)+3*i, y, size, size);
+	    else g.drawRect(x+(size*i)+3*i, y, size, size);
+	    i++;
+	}
+	while(i<max){
+	    if(i < value)g.fillRect(x+(size*(i-max/2))+3*(i-max/2), y+size+3, size, size);
+	    else g.drawRect(x+(size*(i-max/2))+3*(i-max/2), y+size+3, size, size);
+	    i++;
+	}
+	g.setColor(INFO_COLOR);
     }
     
 }

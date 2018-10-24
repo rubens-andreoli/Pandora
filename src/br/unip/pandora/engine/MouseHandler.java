@@ -9,9 +9,9 @@ import java.awt.event.MouseWheelListener;
 
 public class MouseHandler {
     
-    private final MouseListener ml;
-    private final MouseMotionListener mml;
-    private final MouseWheelListener mwl;
+    private MouseListener ml;
+    private MouseMotionListener mml;
+    private MouseWheelListener mwl;
     
     private boolean click, wheel, released;
     private int button, modifier;

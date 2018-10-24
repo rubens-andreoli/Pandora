@@ -75,7 +75,6 @@ public class Engine {
 	try {
 	    thread.join(); 
 	} catch (InterruptedException ex) {
-//	    Logger.getLogger(Engine.class.getName()).log(Level.SEVERE, null, ex);
 	} finally {
 	    display.close();
 	}

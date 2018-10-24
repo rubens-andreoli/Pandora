@@ -7,12 +7,22 @@ import java.util.ArrayList;
 public class Creature extends Entity {
     
     public static final byte ID = 3;
-    
-    private Point head;
-    private ArrayList<Point> snakeParts;
-    private int tailLenght = 5;
+
+    //body
+    private ArrayList<Point> tail;
+    private byte tailLenght = 5;
     
     //status
+    private float life = 12;
+    private float lifeMax = 12;
+    private float demageRate = 0.05F;
+    private float thirst;
+    private float thirstMax = 12;
+    private float thirstRate = 0.2F;
+    private float hunger;
+    private float hungerMax = 12;
+    private float hungerRate = 0.1F;
+    //<editor-fold defaultstate="collapsed" desc="Status">
     public enum Status {
 	OK, //not hungry; not thirst; nothing in front
 	HUNGRY, //hungry; not thirst; nothing in front
@@ -23,50 +33,52 @@ public class Creature extends Entity {
 	MUST_DRINK, //any; thirst; water in front
 	NEEDY; //hungry; thirst; nothing in front
     }
-    
-    private float thirst;
-    private final float thirstMax = 10;
-    private final float thirstRate = (float) 0.1;
-    private float hunger;
-    private final float hungerMax = 10;
-    private final float hungerRate = (float) 0.1;
-    
+    //</editor-fold>
+
     //movement
-    public static final int UP=0, DOWN=1, LEFT=2, RIGHT=3;
-    private int direction = DOWN;
     private int targetX, targetY;
     private boolean targeting;
 
     public Creature(int x, int y) {
 	super(ID, x, y, Color.YELLOW);
-	snakeParts = new ArrayList<>();
-	head = new Point(x, y);
+	tail = new ArrayList<>();
 	for(int i=0; i < tailLenght; i++){
-	    snakeParts.add(new Point(x, y));
+	    tail.add(new Point(x, y));
 	}
     }
 
     public void update() {
 	if(thirst < thirstMax) thirst+=thirstRate;
 	if(hunger < hungerMax) hunger+=hungerRate;
+	if(hunger >= hungerMax && life > 0) life-=demageRate;
+	if(thirst >= thirstMax && life > 0) life-=demageRate;
+	if(thirst > thirstMax) thirst = thirstMax;
+	if(hunger > hungerMax) hunger = hungerMax;
+	if(life < 0) life = 0;
 	targeting = targetX != x || targetY != y;
-	if(targeting) move();
+	move();
     }
     
     private void move() {
-	if(targetX > x) x++;
-	else if(targetX < x) x--;
-	if(targetY > y) y++;
-	else if(targetY < y) y--;
+	if(targeting){
+	    if(targetX > x) x++;
+	    else if(targetX < x)x--;
+	    if(targetY > y)y++;
+	    else if(targetY < y)y--;
+	    tail.add(new Point(x, y));
+	    tail.remove(0);
+	}
     }
     
-    public void interact(Entity e, Entity[][] map) {
+    public boolean consume(Entity e) {
+	if(e == null) return false; //TODO: check null before?
 	switch(e.id){
 	    case 1: thirst = 0;
-		break;
+		return true;
 	    case 2: hunger = 0;
-		map[e.x][e.y] = null;
-		break;
+		return true;
+	    default:
+		return false;
 	}
     }
     
@@ -107,5 +119,11 @@ public class Creature extends Entity {
 
     public float getThirst() {return thirst;}
     public float getHunger() {return hunger;}
+    public float getLife() {return life;}
+    public float getLifeMax() {return lifeMax;}
+    public float getThirstMax() {return thirstMax;}
+    public float getHungerMax() {return hungerMax;} 
+    public ArrayList<Point> getTail() {return tail;}
+    public boolean isTargeting() {return targeting;}
     
 }

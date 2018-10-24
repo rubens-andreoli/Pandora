@@ -10,8 +10,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.ListIterator;
 
 public class World {
     
@@ -22,7 +22,6 @@ public class World {
     private static final Color GRASS_COLOR = new Color(87, 142, 96);
     private int numCenters = 120; //terrain patch sizes/number
     private int waterChance = 8; //waterbody chance
-//  private int waterLimit = 4; //waterbody limit
     private int dirtChance = 40; //dirt chance
     private static final Color DIRT_COLOR = new Color(145, 118, 83);
     private HashSet<Point> dirtPoints;
@@ -42,15 +41,13 @@ public class World {
     private BufferedImage drawMap;
     private int drawWidth, drawHeight;
 
-    //map
+    //entity control
     private int rows = 100; //77
     private int cols = 100;
     private Entity[][] entityMap;
-    
-    //entity control
-    private ArrayList<Food> foodList;
     private Creature creature;
-    private int foodAmount = 10;
+    private int foodAmount = 0;
+    private int foodLimit = 4;
     
     public World(int drawWidth, int drawHeight, int minimapWidth, int minimapHeight) {
 	this.drawWidth = drawWidth;
@@ -72,16 +69,13 @@ public class World {
 	terrain = new BufferedImage(terrainWidth, terrainHeight, BufferedImage.TYPE_INT_RGB);
 	drawMap = new BufferedImage(drawWidth, drawHeight, BufferedImage.TYPE_INT_RGB);
 	minimap = new BufferedImage(minimapWidth, minimapHeight, BufferedImage.TYPE_INT_RGB);
-	foodList = new ArrayList<>();
 	dirtPoints = new HashSet<>();
 	waterPoints = new HashSet<>();
 	
 	generateTerrain(); 
 	drawTerrain();
 	generateFood();
-	creature = new Creature(0, 0); //TODO: random point...not water or food
-
-	creature.target(2, entityMap); //FIX: test
+	creature = new Creature(0, 0); //TODO: random point?
 	
 	dirtPoints = null; //only used for generate-draw
 	waterPoints = null; //only used for draw
@@ -181,58 +175,74 @@ public class World {
     
     private void generateFood(){
 	int x, y;
-	for(int i=0; i<foodAmount; i++){
+	while(foodAmount<foodLimit){
 	    do{
 		x = Generator.RANDOM.nextInt(cols);
 		y = Generator.RANDOM.nextInt(rows);
 	    }while(entityMap[x][y] != null);
-	    Food f = new Food(x, y);
-	    entityMap[x][y] = f;
-	    foodList.add(f);
+	    entityMap[x][y] = new Food(x, y);
+	    foodAmount++;
 	}
     }
  
     public void update() {
+	if(!creature.isTargeting()){ //FIX: test
+	    creature.target(2, entityMap);
+	    if(creature.consume(entityMap[creature.getX()][creature.getY()])){
+		foodAmount--;
+		entityMap[creature.getX()][creature.getY()] = null;
+		generateFood();
+	    }
+	} 
+
 	creature.update();
     }
 
     public BufferedImage drawImage(float xOffset, float yOffset) {
 	Graphics g = drawMap.getGraphics();
-	g.drawImage(terrain.getSubimage((int)xOffset, (int)yOffset, Math.min(drawWidth, terrainWidth), 
-		Math.min(drawWidth, terrainHeight)), 0, 0, null); //FIX: width and height on constructor, and enlarge gridSize if terrain is smaller
 	
+	//draw terrain
+	g.drawImage(terrain.getSubimage((int)xOffset, (int)yOffset, Math.min(drawWidth, terrainWidth), 
+		Math.min(drawWidth, terrainHeight)), 0, 0, null);
+	
+	//draw entities
 	int viewXStart = (int)(xOffset/gridSize);
 	int viewYStart = (int)(yOffset/gridSize);
 	int viewXEnd = (int) Math.min(viewXStart+(drawWidth/gridSize)+1, cols);
 	int viewYEnd = (int) Math.min(viewYStart+(drawHeight/gridSize)+1, rows);
-	
-//	long start = System.nanoTime();
 	for (int x=viewXStart; x < viewXEnd; x++) {
 	    for (int y=viewYStart; y < viewYEnd; y++) {
 		Entity e = entityMap[x][y];
 		if(e != null && e.id != 1){
 		    g.setColor(e.getColor());
-		    g.fillRect((int)(x*gridSize-xOffset)+1, (int)(y*gridSize-yOffset)+1, gridSize-1, gridSize-1);
+		    g.fillRect(
+			    (int)(x*gridSize-xOffset)+1, 
+			    (int)(y*gridSize-yOffset)+1, 
+			    gridSize-1, 
+			    gridSize-1
+		    );
 		}
 	    }
 	}
 	
+	//draw creature
 	g.setColor(creature.getColor());
-	g.fillRect((int)(creature.getX()*gridSize-xOffset)+1, (int)(creature.getY()*gridSize-yOffset)+1, gridSize-1, gridSize-1);
-//	System.out.print((System.nanoTime() - start)+" : ");
-//	start = System.nanoTime();
-//	int x = 0;
-//	int y = 0;
-//	for(Point p :  waterPoints){
-//	    x = p.x;
-//	    y = p.y;
-//	    if(x >= viewXStart && x <= viewXEnd && y >= viewYStart && y <= viewYEnd){
-//		g.setColor(Water.COLOR);
-//		g.fillRect((int)(x*gridSize-xOffset), (int)(y*gridSize-yOffset), gridSize+1, gridSize+1);
-//	    }
-//	}
-//	System.out.println(System.nanoTime() - start);
-//	g.dispose();
+	g.fillRect((int)(creature.getX()*gridSize-xOffset)+1, 
+		(int)(creature.getY()*gridSize-yOffset)+1, 
+		gridSize-1, 
+		gridSize-1
+	);
+	ListIterator<Point> li = creature.getTail().listIterator(creature.getTail().size());
+	while(li.hasPrevious()){
+	    Point t = li.previous();
+	    if(entityMap[t.x][t.y] != null && entityMap[t.x][t.y].id == 1) break;
+	    g.fillRect((int)(t.x*gridSize-xOffset)+1, 
+		    (int)(t.y*gridSize-yOffset)+1, 
+		    gridSize-1, 
+		    gridSize-1
+	    );
+	}
+
 	return drawMap;
     }
 
@@ -240,11 +250,18 @@ public class World {
 	return entityMap[x][y]; //TODO: or entity close
     }
     
-//    public int getNumSouls(){ return soulList.size();}
+    public Creature getCreature(){
+	return creature;
+    }
+
+    public int getGridSize() {
+	return gridSize;
+    }
+
     public float getMinimapXScale(){return minimapXScale;}
     public float getMinimapYScale(){return minimapYScale;}
     public int getTerrainWidth() {return terrainWidth;}
     public int getTerrainHeight() {return terrainHeight;}
     public BufferedImage getMinimap(){return minimap;}
-
+    
 }

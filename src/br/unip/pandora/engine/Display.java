@@ -14,11 +14,13 @@ public class Display {
     public static final int DEFAULT_WIDTH = 320;
     public static final int DEFAULT_HEIGHT = 240;
     public static final int DEFAULT_SCALE = 2;
-    
+
+    //config
     private String title;
     private int width, height, scale;
     
-    private static JFrame frame = new JFrame(); //TODO: better solution for changing cursor?
+    //parts
+    private static JFrame frame = new JFrame();
     private static Cursor cursor;
     private JPanel panel;
     private BufferedImage buffer;
