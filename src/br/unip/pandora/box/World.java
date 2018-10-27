@@ -75,7 +75,7 @@ public class World {
 	generateTerrain(); 
 	drawTerrain();
 	generateFood();
-	creature = new Creature(0, 0); //TODO: random point?
+	creature = new Creature(0, 0, entityMap); //TODO: random point?
 	
 	dirtPoints = null; //only used for generate-draw
 	waterPoints = null; //only used for draw
@@ -185,16 +185,19 @@ public class World {
 	}
     }
  
+    private int test = 1; //REMOVE: creature test only
     public void update() {
-	if(!creature.isTargeting()){ //FIX: test
-	    creature.target(2, entityMap);
-	    if(creature.consume(entityMap[creature.getX()][creature.getY()])){
+	if(!creature.isSearching()){ 
+	    int t = test==1?2:1;
+	    test = t;
+	    creature.target(test);
+	    Entity e =  entityMap[creature.getX()][creature.getY()];
+	    if(creature.consume(e) > 0 && e.id == 2){
 		foodAmount--;
 		entityMap[creature.getX()][creature.getY()] = null;
 		generateFood();
 	    }
 	} 
-
 	creature.update();
     }
 
@@ -245,23 +248,13 @@ public class World {
 
 	return drawMap;
     }
-
-    public Entity getEntity(int x, int y){
-	return entityMap[x][y]; //TODO: or entity close
-    }
     
-    public Creature getCreature(){
-	return creature;
-    }
-
-    public int getGridSize() {
-	return gridSize;
-    }
-
+    public Creature getCreature(){return creature;}
     public float getMinimapXScale(){return minimapXScale;}
     public float getMinimapYScale(){return minimapYScale;}
     public int getTerrainWidth() {return terrainWidth;}
     public int getTerrainHeight() {return terrainHeight;}
     public BufferedImage getMinimap(){return minimap;}
+    public int getGridSize() {return gridSize;}
     
 }

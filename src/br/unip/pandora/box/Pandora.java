@@ -51,19 +51,20 @@ public class Pandora extends Game {
     private static final Cursor HAND_CURSOR = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
     private static final Cursor MOVE_CURSOR = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
     private static final Cursor DEFAULT_CURSOR = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+    private int modelSize = 5;
     
     //ui others
     private Clock clock;
     private Speaker speaker;
     private int infoWidth = 160;  //FIX: border don't change properly
-    private int volume;
+    private int volume = 75;
     private int clockHeight, infoY, terrainWidth, terrainHeight;
     private Creature creature;
     
     //logic
     private boolean paused;
     private int tick, hour;
-    private float hourRate = 30;
+    private float hourRate = 30; //1 hours per 30 ticks -> 60 ticks per 1 seg -> 1 hour per 1/2 sec
 
     public Pandora() {
 	super("PANDORA", 640, 480); //800x480
@@ -98,16 +99,16 @@ public class Pandora extends Game {
 	    tick++;
 	    if(tick >= hourRate){
 		hour++;
-		world.update(); //TODO: update each hour? half hour?
+		world.update();
 		tick = 0;
 	    }
 	}
 	
 	speaker.tick();
 	
-	//<editor-fold defaultstate="collapsed" desc="KEYBOARD INPUT">
+	//<editor-fold defaultstate="collapsed" desc="KEYBOARD INPUT"> 
 	if(key.isReleased(PAUSE)) paused = !paused;
-	if(key.isPressed(SPEED_UP)) if(hourRate>2)hourRate-=0.2; //TODO: float hourRate messes with update?
+	if(key.isPressed(SPEED_UP)) if(hourRate>2)hourRate-=0.2;
 	if(key.isPressed(SPEED_DOWN)) hourRate+=0.2;
 	if(key.isTyped(VOLUME_UP)){
 	    if(volume<=90) volume+=10;
@@ -117,7 +118,7 @@ public class Pandora extends Game {
 	    if(volume>=10) volume-=10;
 	    speaker.startTimer();
 	}
-	//</editor-fold>
+	//</editor-fold>  //TODO: lower speed limit?
 	
 	//<editor-fold defaultstate="collapsed" desc="MOUSE INPUT">
 	if(mouse.isOver(worldBounds)){
@@ -145,7 +146,7 @@ public class Pandora extends Game {
 	}else{
 	    Display.setCursor(DEFAULT_CURSOR);
 	}
-	//</editor-fold>
+	//</editor-fold> //TODO: center on click? follow on criature click?
     }
 
     @Override
@@ -181,17 +182,16 @@ public class Pandora extends Game {
 	    g.setFont(INFO_FONT);
 	    g.setColor(INFO_COLOR);
 	    g.clearRect(0, infoY+4, infoWidth, height-infoY);
-	    g.drawRect(10, infoY+4, infoWidth-20, height-infoY-20);
-	    g.drawString("---INFORMATIONS---", 25, infoY+15);
+	    g.drawRect(10, infoY+4, infoWidth-20, height-infoY-6);
+	    g.drawString("---INFORMATIONS---", 25, infoY+15); //FIX: non literal info positions
 	    g.drawString("Action:", 13, infoY+30);
-	    g.drawString("Life:"+creature.getLife(), 13, infoY+45);
-	    drawInfo(g, 13, infoY+50, (int)creature.getLife(), (int)creature.getLifeMax(), Color.YELLOW);
-	    g.drawString("Thirst:"+creature.getThirst(), 13, infoY+105);
-	    drawInfo(g, 13, infoY+110, (int)creature.getThirst(), (int)creature.getThirstMax(), Color.BLUE);
-	    g.drawString("Hunger:"+creature.getHunger(), 13, infoY+165);
-	    drawInfo(g, 13, infoY+170, (int)creature.getHunger(), (int)creature.getHungerMax(), Color.RED);
-	    //TODO: show entity info	
-
+	    g.drawString("Status:", 13, infoY+44);
+	    g.drawString("Life:"+creature.getLife(), 13, infoY+59);
+	    drawInfo(g, 13, infoY+64, (int)creature.getLife(), (int)creature.getLifeMax(), FEATURE_COLOR);
+	    g.drawString("Thirst:"+creature.getThirst(), 13, infoY+119);
+	    drawInfo(g, 13, infoY+124, (int)creature.getThirst(), (int)creature.getThirstMax(), Color.BLUE);
+	    g.drawString("Hunger:"+creature.getHunger(), 13, infoY+179);
+	    drawInfo(g, 13, infoY+184, (int)creature.getHunger(), (int)creature.getHungerMax(), Color.RED);	
 	}else{
 	    //paused
 	    g.setFont(PAUSE_FONT);
@@ -209,8 +209,8 @@ public class Pandora extends Game {
 	//pandora hour per real second
 	g.setFont(INFO_FONT);
 	g.setColor(FEATURE_COLOR);
-	g.clearRect(0, clockHeight, 115, 11);
-	g.drawString(String.format(HOUR_SEC_MASK, 60.0/hourRate), 10, clockHeight+10);
+	g.clearRect(0, clockHeight, infoWidth, 11); //11 -> font height
+	g.drawString(String.format(HOUR_SEC_MASK, 60.0/hourRate), 10, clockHeight+10); //60.0 -> tick rate
 	
 	//world
 	g.drawImage(
@@ -221,16 +221,24 @@ public class Pandora extends Game {
 	);
 	
 	//minimap
+	g.setColor(FEATURE_COLOR);
 	g.drawImage(minimap, minimapBounds.x, minimapBounds.y, null);
 	g.drawRect((int)(minimapBounds.x+(xOffset*minimapXScale)), 
 		(int)(minimapBounds.y+(yOffset*minimapYScale)), 
 		(int)(worldBounds.width*minimapXScale), 
 		(int)(worldBounds.height*minimapYScale)
 	);
-	g.fillRect(Math.min((int)(minimapBounds.x+creature.getX()*(world.getGridSize()*minimapXScale)),minimapBounds.x+minimap.getWidth()-5),
-		Math.min((int)(minimapBounds.y+creature.getY()*(world.getGridSize()*minimapYScale)),minimapBounds.y+minimap.getHeight()-5), 
-		5, 
-		5
+	g.fillRect(
+		Math.min(
+		    (int)(minimapBounds.x+creature.getX()*(world.getGridSize()*minimapXScale)),
+		    minimapBounds.x+minimap.getWidth()-modelSize
+		),
+		Math.min(
+		    (int)(minimapBounds.y+creature.getY()*(world.getGridSize()*minimapYScale)),
+		    minimapBounds.y+minimap.getHeight()-modelSize
+		), 
+		modelSize, 
+		modelSize
 	);
     }
 

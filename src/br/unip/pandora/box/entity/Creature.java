@@ -18,7 +18,7 @@ public class Creature extends Entity {
     private float demageRate = 0.05F;
     private float thirst;
     private float thirstMax = 12;
-    private float thirstRate = 0.2F;
+    private float thirstRate = 0.15F;
     private float hunger;
     private float hungerMax = 12;
     private float hungerRate = 0.1F;
@@ -37,10 +37,14 @@ public class Creature extends Entity {
 
     //movement
     private int targetX, targetY;
-    private boolean targeting;
+    private boolean searching;
+    private Entity[][] map;
+    
+    //actions: NOTHING, SEARCH_WATER target(1), SEARCH_FOOD target(2), CONSUME consume(e)
 
-    public Creature(int x, int y) {
+    public Creature(int x, int y, Entity[][] map) {
 	super(ID, x, y, Color.YELLOW);
+	this.map = map;
 	tail = new ArrayList<>();
 	for(int i=0; i < tailLenght; i++){
 	    tail.add(new Point(x, y));
@@ -55,51 +59,62 @@ public class Creature extends Entity {
 	if(thirst > thirstMax) thirst = thirstMax;
 	if(hunger > hungerMax) hunger = hungerMax;
 	if(life < 0) life = 0;
-	targeting = targetX != x || targetY != y;
+	if(life < lifeMax && hunger <= hungerMax/2 && thirst <= thirstMax/2){
+	    life++;
+	    hunger++;
+	    thirst++;
+	}
+	searching = targetX != x || targetY != y;
 	move();
     }
     
     private void move() {
-	if(targeting){
+	if(searching){
+	    tail.add(new Point(x, y));
 	    if(targetX > x) x++;
 	    else if(targetX < x)x--;
 	    if(targetY > y)y++;
 	    else if(targetY < y)y--;
-	    tail.add(new Point(x, y));
 	    tail.remove(0);
 	}
     }
     
-    public boolean consume(Entity e) {
-	if(e == null) return false; //TODO: check null before?
+    public int consume(Entity e) {
+	if(e == null) return 0;
+	int delta = 0;
 	switch(e.id){
-	    case 1: thirst = 0;
-		return true;
-	    case 2: hunger = 0;
-		return true;
+	    case 1: 
+		delta = (int) thirst;
+		thirst = 0;
+		break;
+	    case 2: 
+		delta = (int) hunger;
+		hunger = 0;
+		break;
 	    default:
-		return false;
+		delta = 0;
 	}
+	return delta;
     }
     
-    public void target(int id, Entity[][] map){
+    public void target(int id){
 	double minDistance = -1;
 	for(int x=0; x<map.length; x++){
 	    for(int y=0; y<map[x].length; y++){
 		Entity e = map[x][y];
 		if(e != null && e.id == id){
-		    double distance = Math.hypot(this.x-e.x, this.y-e.y);
+		    double distance = Math.hypot(this.x-x, this.y-y); //all water is x=0/y=0 so get x,y from matriz, not entity
 		    if(distance < minDistance || minDistance == -1){
 			minDistance = distance;
-			targetX = e.x;
-			targetY = e.y;
+			targetX = x;
+			targetY = y;
 		    }
 		}
 	    }
 	}
     }
     
-    public Status getStatus(Entity[][] map){
+    public Status getStatus(){ //TODO: dying?
 	Status s = Status.OK;
 	if(thirst >= thirstMax/2) s = Status.THIRST;
 	if(hunger >= hungerMax/2){
@@ -124,6 +139,6 @@ public class Creature extends Entity {
     public float getThirstMax() {return thirstMax;}
     public float getHungerMax() {return hungerMax;} 
     public ArrayList<Point> getTail() {return tail;}
-    public boolean isTargeting() {return targeting;}
+    public boolean isSearching() {return searching;}
     
 }
