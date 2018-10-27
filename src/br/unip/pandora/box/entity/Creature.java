@@ -22,8 +22,9 @@ public class Creature extends Entity {
     private float hunger;
     private float hungerMax = 12;
     private float hungerRate = 0.1F;
-    //<editor-fold defaultstate="collapsed" desc="Status">
-    public enum Status {
+    private State crtState = State.OK;
+    //<editor-fold defaultstate="collapsed" desc="State">
+    public enum State {
 	OK, //not hungry; not thirst; nothing in front
 	HUNGRY, //hungry; not thirst; nothing in front
 	CAN_EAT, //not hungry; any; food in front
@@ -35,12 +36,19 @@ public class Creature extends Entity {
     }
     //</editor-fold>
 
-    //movement
+    //actions
     private int targetX, targetY;
-    private boolean searching;
+    private boolean moving;
     private Entity[][] map;
-    
-    //actions: NOTHING, SEARCH_WATER target(1), SEARCH_FOOD target(2), CONSUME consume(e)
+    private Action crtAction = Action.NOTHING;
+    //<editor-fold defaultstate="collapsed" desc="Action">
+    public enum Action {
+	NOTHING, 
+	SEARCH_WATER, //target(1)
+	SEARCH_FOOD, //target(2)
+	INTERACT; //interact()
+    }
+    //</editor-fold>
 
     public Creature(int x, int y, Entity[][] map) {
 	super(ID, x, y, Color.YELLOW);
@@ -54,33 +62,50 @@ public class Creature extends Entity {
     public void update() {
 	if(thirst < thirstMax) thirst+=thirstRate;
 	if(hunger < hungerMax) hunger+=hungerRate;
-	if(hunger >= hungerMax && life > 0) life-=demageRate;
-	if(thirst >= thirstMax && life > 0) life-=demageRate;
 	if(thirst > thirstMax) thirst = thirstMax;
 	if(hunger > hungerMax) hunger = hungerMax;
+	
+	if(hunger >= hungerMax && life > 0) life-=demageRate;
+	if(thirst >= thirstMax && life > 0) life-=demageRate;
 	if(life < 0) life = 0;
-	if(life < lifeMax && hunger <= hungerMax/2 && thirst <= thirstMax/2){
-	    life++;
-	    hunger++;
-	    thirst++;
-	}
-	searching = targetX != x || targetY != y;
-	move();
+	if(life > lifeMax) life = lifeMax;
+
+	moving = targetX != x || targetY != y;
+	if(moving) move();
+	
+	crtState = getStatus();
     }
     
     private void move() {
-	if(searching){
-	    tail.add(new Point(x, y));
-	    if(targetX > x) x++;
-	    else if(targetX < x)x--;
-	    if(targetY > y)y++;
-	    else if(targetY < y)y--;
-	    tail.remove(0);
-	}
+	tail.add(new Point(x, y));
+	if(targetX > x) x++;
+	else if(targetX < x)x--;
+	if(targetY > y)y++;
+	else if(targetY < y)y--;
+	tail.remove(0);
     }
     
-    public int consume(Entity e) {
+    public int doAction(Action a){
+	int ret = -1;
+	crtAction = a;
+	switch(a){
+	    case SEARCH_WATER:
+		target(1);
+		break;
+	    case SEARCH_FOOD:
+		target(2);
+		break;
+	    case INTERACT:
+		ret = interact();
+		break;
+	}
+	return ret;
+    }
+    
+    private int interact() {
+	Entity e = map[x][y];
 	if(e == null) return 0;
+	
 	int delta = 0;
 	switch(e.id){
 	    case 1: 
@@ -88,8 +113,12 @@ public class Creature extends Entity {
 		thirst = 0;
 		break;
 	    case 2: 
+		if(life < lifeMax){
+		    life++;
+		}
 		delta = (int) hunger;
-		hunger = 0;
+		hunger = 0; 
+		e.remove();
 		break;
 	    default:
 		delta = 0;
@@ -97,7 +126,8 @@ public class Creature extends Entity {
 	return delta;
     }
     
-    public void target(int id){
+    private void target(int id){
+	//if not targetting
 	double minDistance = -1;
 	for(int x=0; x<map.length; x++){
 	    for(int y=0; y<map[x].length; y++){
@@ -114,19 +144,20 @@ public class Creature extends Entity {
 	}
     }
     
-    public Status getStatus(){ //TODO: dying?
-	Status s = Status.OK;
-	if(thirst >= thirstMax/2) s = Status.THIRST;
+    public State getStatus(){ //TODO: dying?
+	State s = State.OK;
+	if(thirst >= thirstMax/2) s = State.THIRST;
 	if(hunger >= hungerMax/2){
-	    if (s == Status.OK) s = Status.HUNGRY;
-	    else s = Status.NEEDY;
+	    if (s == State.OK) s = State.HUNGRY;
+	    else s = State.NEEDY;
 	}
+	if(map[x][y] == null) return s;
 	switch(map[x][y].id){
-	    case 1: if(s == Status.THIRST) s = Status.MUST_DRINK;
-		    else s = Status.CAN_DRINK;
+	    case 1: if(s == State.THIRST) s = State.MUST_DRINK;
+		    else s = State.CAN_DRINK;
 		break;
-	    case 2: if(s == Status.HUNGRY) s = Status.MUST_EAT;
-		    else s = Status.CAN_EAT;
+	    case 2: if(s == State.HUNGRY) s = State.MUST_EAT;
+		    else s = State.CAN_EAT;
 		break;
 	}
 	return s;
@@ -139,6 +170,10 @@ public class Creature extends Entity {
     public float getThirstMax() {return thirstMax;}
     public float getHungerMax() {return hungerMax;} 
     public ArrayList<Point> getTail() {return tail;}
-    public boolean isSearching() {return searching;}
-    
+    public boolean isMoving() {return moving;}
+    public State getCurrentState() {return crtState;}
+    public Action getCurrentAction() {return crtAction;}
+    public int getActionCount(){return Action.values().length;}
+    public int getStateCount(){return State.values().length;}
+     
 }

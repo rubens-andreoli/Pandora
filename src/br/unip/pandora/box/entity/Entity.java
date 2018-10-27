@@ -7,6 +7,7 @@ public abstract class Entity {
     public final byte id;
     protected int x, y;
     protected Color color;
+    protected boolean remove;
     
     public Entity(byte id, int x, int y, Color color){
 	this.id = id;
@@ -18,5 +19,7 @@ public abstract class Entity {
     public int getX(){return x;}
     public int getY(){return y;}
     public Color getColor(){return color;}
+    public boolean shouldRemove(){return remove;}
+    public void remove(){remove = true;}
   
 }

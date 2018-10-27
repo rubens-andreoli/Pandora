@@ -11,6 +11,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.ListIterator;
 
 public class World {
@@ -46,8 +47,8 @@ public class World {
     private int cols = 100;
     private Entity[][] entityMap;
     private Creature creature;
-    private int foodAmount = 0;
     private int foodLimit = 4;
+    private HashSet<Food> foodSet;
     
     public World(int drawWidth, int drawHeight, int minimapWidth, int minimapHeight) {
 	this.drawWidth = drawWidth;
@@ -71,6 +72,7 @@ public class World {
 	minimap = new BufferedImage(minimapWidth, minimapHeight, BufferedImage.TYPE_INT_RGB);
 	dirtPoints = new HashSet<>();
 	waterPoints = new HashSet<>();
+	foodSet = new HashSet<>();
 	
 	generateTerrain(); 
 	drawTerrain();
@@ -175,27 +177,40 @@ public class World {
     
     private void generateFood(){
 	int x, y;
-	while(foodAmount<foodLimit){
+	while(foodSet.size()<foodLimit){
 	    do{
 		x = Generator.RANDOM.nextInt(cols);
 		y = Generator.RANDOM.nextInt(rows);
 	    }while(entityMap[x][y] != null);
-	    entityMap[x][y] = new Food(x, y);
-	    foodAmount++;
+	    Food f = new Food(x, y);
+	    entityMap[x][y] = f;
+	    foodSet.add(f);
 	}
     }
  
     private int test = 1; //REMOVE: creature test only
     public void update() {
-	if(!creature.isSearching()){ 
-	    int t = test==1?2:1;
-	    test = t;
-	    creature.target(test);
+
+	Iterator<Food> itr = foodSet.iterator();
+	while(itr.hasNext()){
+	    Food f = itr.next();
+	    if(f.shouldRemove()){
+		entityMap[f.getX()][f.getY()] = null;
+		itr.remove();
+	    }
+	}
+	generateFood();
+	if(!creature.isMoving()){ 
+	    if(test == 1){
+		creature.doAction(Creature.Action.SEARCH_FOOD);
+		test = 2;
+	    }else if(test == 2){
+		creature.doAction(Creature.Action.SEARCH_WATER);
+		test = 1;
+	    }
 	    Entity e =  entityMap[creature.getX()][creature.getY()];
-	    if(creature.consume(e) > 0 && e.id == 2){
-		foodAmount--;
-		entityMap[creature.getX()][creature.getY()] = null;
-		generateFood();
+	    if(e != null){
+		creature.doAction(Creature.Action.INTERACT);
 	    }
 	} 
 	creature.update();

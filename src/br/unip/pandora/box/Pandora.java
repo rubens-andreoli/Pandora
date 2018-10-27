@@ -184,8 +184,8 @@ public class Pandora extends Game {
 	    g.clearRect(0, infoY+4, infoWidth, height-infoY);
 	    g.drawRect(10, infoY+4, infoWidth-20, height-infoY-6);
 	    g.drawString("---INFORMATIONS---", 25, infoY+15); //FIX: non literal info positions
-	    g.drawString("Action:", 13, infoY+30);
-	    g.drawString("Status:", 13, infoY+44);
+	    g.drawString("Action:"+creature.getCurrentAction(), 13, infoY+30);
+	    g.drawString("Status:"+creature.getCurrentState(), 13, infoY+44);
 	    g.drawString("Life:"+creature.getLife(), 13, infoY+59);
 	    drawInfo(g, 13, infoY+64, (int)creature.getLife(), (int)creature.getLifeMax(), FEATURE_COLOR);
 	    g.drawString("Thirst:"+creature.getThirst(), 13, infoY+119);
