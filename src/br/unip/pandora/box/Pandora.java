@@ -109,7 +109,7 @@ public class Pandora extends Game {
 	//<editor-fold defaultstate="collapsed" desc="KEYBOARD INPUT"> 
 	if(key.isReleased(PAUSE)) paused = !paused;
 	if(key.isPressed(SPEED_UP)) if(hourRate>2)hourRate-=0.2;
-	if(key.isPressed(SPEED_DOWN)) hourRate+=0.2;
+	if(key.isPressed(SPEED_DOWN)) if(hourRate<60)hourRate+=0.2;
 	if(key.isTyped(VOLUME_UP)){
 	    if(volume<=90) volume+=10;
 	    speaker.startTimer();
@@ -118,7 +118,7 @@ public class Pandora extends Game {
 	    if(volume>=10) volume-=10;
 	    speaker.startTimer();
 	}
-	//</editor-fold>  //TODO: lower speed limit?
+	//</editor-fold>
 	
 	//<editor-fold defaultstate="collapsed" desc="MOUSE INPUT">
 	if(mouse.isOver(worldBounds)){
@@ -185,7 +185,7 @@ public class Pandora extends Game {
 	    g.drawRect(10, infoY+4, infoWidth-20, height-infoY-6);
 	    g.drawString("---INFORMATIONS---", 25, infoY+15); //FIX: non literal info positions
 	    g.drawString("Action:"+creature.getCurrentAction(), 13, infoY+30);
-	    g.drawString("Status:"+creature.getCurrentState(), 13, infoY+44);
+	    g.drawString("State:"+creature.getCurrentState(), 13, infoY+44);
 	    g.drawString("Life:"+creature.getLife(), 13, infoY+59);
 	    drawInfo(g, 13, infoY+64, (int)creature.getLife(), (int)creature.getLifeMax(), FEATURE_COLOR);
 	    g.drawString("Thirst:"+creature.getThirst(), 13, infoY+119);

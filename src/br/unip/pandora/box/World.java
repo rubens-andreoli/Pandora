@@ -1,5 +1,6 @@
 package br.unip.pandora.box;
 
+import br.unip.pandora.box.ai.QBot;
 import br.unip.pandora.box.entity.Creature;
 import br.unip.pandora.box.entity.Entity;
 import br.unip.pandora.box.entity.Food;
@@ -47,6 +48,7 @@ public class World {
     private int cols = 100;
     private Entity[][] entityMap;
     private Creature creature;
+    private QBot qBot;
     private int foodLimit = 4;
     private HashSet<Food> foodSet;
     
@@ -78,6 +80,7 @@ public class World {
 	drawTerrain();
 	generateFood();
 	creature = new Creature(0, 0, entityMap); //TODO: random point?
+	qBot = new QBot(creature);
 	
 	dirtPoints = null; //only used for generate-draw
 	waterPoints = null; //only used for draw
@@ -188,9 +191,8 @@ public class World {
 	}
     }
  
-    private int test = 1; //REMOVE: creature test only
     public void update() {
-
+	//remove consumed food
 	Iterator<Food> itr = foodSet.iterator();
 	while(itr.hasNext()){
 	    Food f = itr.next();
@@ -200,20 +202,9 @@ public class World {
 	    }
 	}
 	generateFood();
-	if(!creature.isMoving()){ 
-	    if(test == 1){
-		creature.doAction(Creature.Action.SEARCH_FOOD);
-		test = 2;
-	    }else if(test == 2){
-		creature.doAction(Creature.Action.SEARCH_WATER);
-		test = 1;
-	    }
-	    Entity e =  entityMap[creature.getX()][creature.getY()];
-	    if(e != null){
-		creature.doAction(Creature.Action.INTERACT);
-	    }
-	} 
-	creature.update();
+	
+	//update creature ai
+	qBot.update();
     }
 
     public BufferedImage drawImage(float xOffset, float yOffset) {
@@ -223,7 +214,7 @@ public class World {
 	g.drawImage(terrain.getSubimage((int)xOffset, (int)yOffset, Math.min(drawWidth, terrainWidth), 
 		Math.min(drawWidth, terrainHeight)), 0, 0, null);
 	
-	//draw entities
+	//draw visible entities
 	int viewXStart = (int)(xOffset/gridSize);
 	int viewYStart = (int)(yOffset/gridSize);
 	int viewXEnd = (int) Math.min(viewXStart+(drawWidth/gridSize)+1, cols);

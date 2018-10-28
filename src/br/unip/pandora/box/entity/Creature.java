@@ -25,19 +25,19 @@ public class Creature extends Entity {
     private State crtState = State.OK;
     //<editor-fold defaultstate="collapsed" desc="State">
     public enum State {
-	OK, //not hungry; not thirst; nothing in front
-	HUNGRY, //hungry; not thirst; nothing in front
-	CAN_EAT, //not hungry; any; food in front
-	MUST_EAT, //hungry; any; food in front
-	THIRST, //not hungry; thirst; nothing in front
-	CAN_DRINK, //any; not thirst; water in front
-	MUST_DRINK, //any; thirst; water in front
-	NEEDY; //hungry; thirst; nothing in front
+	OK, //not hungry; not thirst; nothing to interact
+	HUNGRY, //hungry; not thirst; nothing to interact
+	CAN_EAT, //not hungry; any; food to interact
+	MUST_EAT, //hungry; any; food to interact
+	THIRST, //not hungry; thirst; nothing to interact
+	CAN_DRINK, //any; not thirst; water to interact
+	MUST_DRINK, //any; thirst; water to interact
+	NEEDY; //hungry; thirst; nothing to interact
     }
     //</editor-fold>
 
     //actions
-    private int targetX, targetY;
+    private int targetX, targetY, targetId;
     private boolean moving;
     private Entity[][] map;
     private Action crtAction = Action.NOTHING;
@@ -73,7 +73,7 @@ public class Creature extends Entity {
 	moving = targetX != x || targetY != y;
 	if(moving) move();
 	
-	crtState = getStatus();
+	applyState();
     }
     
     private void move() {
@@ -86,7 +86,8 @@ public class Creature extends Entity {
     }
     
     public int doAction(Action a){
-	int ret = -1;
+	if(moving) return -1;
+	int ret = 0;
 	crtAction = a;
 	switch(a){
 	    case SEARCH_WATER:
@@ -127,7 +128,7 @@ public class Creature extends Entity {
     }
     
     private void target(int id){
-	//if not targetting
+	targetId = id;
 	double minDistance = -1;
 	for(int x=0; x<map.length; x++){
 	    for(int y=0; y<map[x].length; y++){
@@ -144,25 +145,53 @@ public class Creature extends Entity {
 	}
     }
     
-    public State getStatus(){ //TODO: dying?
+    private void applyState(){
 	State s = State.OK;
 	if(thirst >= thirstMax/2) s = State.THIRST;
 	if(hunger >= hungerMax/2){
 	    if (s == State.OK) s = State.HUNGRY;
 	    else s = State.NEEDY;
 	}
-	if(map[x][y] == null) return s;
-	switch(map[x][y].id){
-	    case 1: if(s == State.THIRST) s = State.MUST_DRINK;
-		    else s = State.CAN_DRINK;
-		break;
-	    case 2: if(s == State.HUNGRY) s = State.MUST_EAT;
-		    else s = State.CAN_EAT;
-		break;
+	if(map[x][y] != null){
+	    switch(map[x][y].id){
+		case 1: if(s == State.THIRST) s = State.MUST_DRINK;
+			else s = State.CAN_DRINK;
+		    break;
+		case 2: if(s == State.HUNGRY) s = State.MUST_EAT;
+			else s = State.CAN_EAT;
+		    break;
+	    }
 	}
-	return s;
+	crtState = s;
     }
-
+    
+    public int getReward(Action a){ //for any state
+	int r = 0;
+	if(a == Action.INTERACT){
+	    Entity e = map[x][y];
+	    if(e == null) return -1;
+	    if(e.id == 1) r = (int) thirst;
+	    else if(e.id == 2) r = (int) hunger;
+	}
+	return r;
+    }
+    
+    public State getNextState(Action a){
+	switch(a){
+	    case SEARCH_WATER:
+		if(crtState == State.THIRST || crtState == State.NEEDY) return State.MUST_DRINK;
+		else return State.CAN_DRINK;
+	    case SEARCH_FOOD:
+		if(crtState == State.HUNGRY || crtState == State.NEEDY) return State.MUST_EAT;
+		else return State.CAN_EAT;
+	    case INTERACT:
+		if(crtState == State.MUST_DRINK) return State.CAN_DRINK;
+		else if(crtState == State.MUST_EAT) return State.OK;
+	    default:
+		return crtState;
+	}
+    }
+    
     public float getThirst() {return thirst;}
     public float getHunger() {return hunger;}
     public float getLife() {return life;}
