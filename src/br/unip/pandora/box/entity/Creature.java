@@ -40,7 +40,9 @@ public class Creature extends Entity {
     private Entity[][] map;
     private int targetX, targetY;
     private boolean moving;
-    private Action currentAction = Action.NOTHING;
+    private Action currentAction = Action.NOTHING; 
+    private int fatigue;
+    private int fatigueMax = 15; //stop moving after x updates
     //<editor-fold defaultstate="collapsed" desc="Action">
     public enum Action {
 	NOTHING, 
@@ -70,7 +72,8 @@ public class Creature extends Entity {
 	if(life < 0) life = 0;
 	if(life > lifeMax) life = lifeMax;
 
-	moving = targetX != x || targetY != y;
+	fatigue++;
+	moving = targetX != x || targetY != y && fatigue <= fatigueMax;
 	if(moving) move();
 
 	setState();
@@ -89,9 +92,11 @@ public class Creature extends Entity {
 	currentAction = a;
 	switch(a){
 	    case SEARCH_WATER:
+		fatigue = 0;
 		target(Water.ID);
 		break;
 	    case SEARCH_FOOD:
+		fatigue = 0;
 		target(Food.ID);
 		break;
 	    case INTERACT:
