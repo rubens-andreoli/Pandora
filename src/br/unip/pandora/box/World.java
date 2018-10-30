@@ -21,18 +21,18 @@ public class World {
     private BufferedImage terrain;
     private int gridSize = 6;
     private int terrainWidth, terrainHeight;
-    private static final Color GRASS_COLOR = new Color(87, 142, 96);
+    private Color grassColor = new Color(87, 142, 96);
     private int numCenters = 120; //terrain patch sizes/number
     private int waterChance = 8; //waterbody chance
     private int dirtChance = 40; //dirt chance
-    private static final Color DIRT_COLOR = new Color(145, 118, 83);
+    private Color dirtColor = new Color(145, 118, 83);
     private HashSet<Point> dirtPoints;
     private HashSet<Point> waterPoints;
     private boolean drawGrid = true;
-    private static final Color GRID_COLOR = new Color(230, 230, 230, 90);
+    private Color gridColor = new Color(230, 230, 230, 90);
     private boolean drawNumbers = false;
-    private static final Font NUM_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 8);
-    private static final Color NUM_COLOR = Color.YELLOW;
+    private Font numFont = new Font(Font.MONOSPACED, Font.PLAIN, 8);
+    private Color numColor = Color.YELLOW;
     
     //minimap
     private BufferedImage minimap;
@@ -79,7 +79,7 @@ public class World {
 	generateTerrain(); 
 	drawTerrain();
 	generateFood();
-	creature = new Creature(0, 0, entityMap); //TODO: random point?
+	creature = new Creature(0, 0, entityMap);
 	qBot = new QBot(creature);
 	
 	dirtPoints = null; //only used for generate-draw
@@ -96,15 +96,11 @@ public class World {
 	int[] centerY = new int[numCenters];
 	boolean[] isWater = new boolean[numCenters];
 	boolean[] isDirt = new boolean[numCenters];
-//	int numWater = 0;
 	for(int i = 0; i < numCenters; i++) {
 	    centerX[i] = Generator.RANDOM.nextInt(cols);
 	    centerY[i] = Generator.RANDOM.nextInt(rows);
-//	    if(numWater <= waterLimit){
-		boolean water = Generator.randomBoolean(waterChance);
-		isWater[i] = water;
-//		numWater++;
-//	    }
+	    boolean water = Generator.randomBoolean(waterChance);
+	    isWater[i] = water;
 	    if(!water) isDirt[i] = Generator.randomBoolean(dirtChance);
 	}
 	int n = 0;
@@ -141,7 +137,7 @@ public class World {
 	Graphics gM = minimap.getGraphics();
 
 	//grass
-	gT.setColor(GRASS_COLOR);
+	gT.setColor(grassColor);
 	gT.fillRect(0, 0, terrainWidth, terrainHeight);
 	
 	//water
@@ -151,7 +147,7 @@ public class World {
 	}
 	
 	//dirt
-	gT.setColor(DIRT_COLOR);
+	gT.setColor(dirtColor);
 	for(Point p : dirtPoints){
 	    gT.fillRect(p.x*gridSize, p.y*gridSize, gridSize+1, gridSize+1);
 	}
@@ -160,17 +156,17 @@ public class World {
 	
 	//grid
 	if(drawGrid){
-	    gT.setColor(GRID_COLOR);
-    	    gT.setFont(NUM_FONT);
+	    gT.setColor(gridColor);
+    	    gT.setFont(numFont);
 	    for(int x=0; x<=terrainWidth; x+=gridSize){
 		gT.drawLine(x, 0, x, terrainHeight);
 	    }
     	    int rowNum = 1;
 	    for(int y=0; y<terrainHeight; y+=gridSize){ //draw one after -> needed for line, not for number
 		if(drawNumbers){
-		    gT.setColor(NUM_COLOR);
+		    gT.setColor(numColor);
 		    gT.drawString((rowNum++)+"", 2, y+gridSize);
-		    gT.setColor(GRID_COLOR);
+		    gT.setColor(gridColor);
 		}
 		gT.drawLine(0, y, terrainWidth, y);
 	    }
@@ -178,6 +174,7 @@ public class World {
     }
     //</editor-fold>
     
+    //<editor-fold defaultstate="collapsed" desc="FOOD GENERATION">
     private void generateFood(){
 	int x, y;
 	while(foodSet.size()<foodLimit){
@@ -190,6 +187,7 @@ public class World {
 	    foodSet.add(f);
 	}
     }
+    //</editor-fold>
  
     public void update() {
 	//remove consumed food
@@ -203,7 +201,7 @@ public class World {
 	}
 	generateFood();
 	
-	//update creature ai
+	//update creature bot
 	qBot.update();
     }
 
@@ -254,13 +252,14 @@ public class World {
 
 	return drawMap;
     }
-    
+
     public Creature getCreature(){return creature;}
     public float getMinimapXScale(){return minimapXScale;}
     public float getMinimapYScale(){return minimapYScale;}
-    public int getTerrainWidth() {return terrainWidth;}
-    public int getTerrainHeight() {return terrainHeight;}
+    public int getTerrainWidth(){return terrainWidth;}
+    public int getTerrainHeight(){return terrainHeight;}
     public BufferedImage getMinimap(){return minimap;}
-    public int getGridSize() {return gridSize;}
+    public int getGridSize(){return gridSize;}
+    public void saveQValues(){qBot.saveQTable();}
     
 }

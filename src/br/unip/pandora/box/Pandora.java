@@ -18,28 +18,29 @@ import java.awt.image.BufferedImage;
 public class Pandora extends Game {
 
     //keys
-    private static final int PAUSE = KeyEvent.VK_SPACE;
-    private static final int SPEED_UP = KeyEvent.VK_PAGE_UP;
-    private static final int SPEED_DOWN = KeyEvent.VK_PAGE_DOWN;
-    private static final int VOLUME_UP = KeyEvent.VK_ADD;
-    private static final int VOLUME_DOWN = KeyEvent.VK_SUBTRACT;
+    private int pauseKey = KeyEvent.VK_SPACE;
+    private int speedUpKey = KeyEvent.VK_PAGE_UP;
+    private int speedDownKey = KeyEvent.VK_PAGE_DOWN;
+    private int volumeUpKey = KeyEvent.VK_ADD;
+    private int volumeDownKey = KeyEvent.VK_SUBTRACT;
+    private int saveQValueKey = KeyEvent.VK_Q;
     
     //text
-    private static final Font TITLE_FONT = new Font(Font.MONOSPACED, Font.BOLD, 18);
-    private static final Color FEATURE_COLOR = Color.YELLOW;
-    private static final String HOUR_SEC_MASK = "Hour/Sec: %.4f";
-    private static final Font INFO_FONT = new Font(Font.MONOSPACED, Font.PLAIN, 10);
-    private static final Color INFO_COLOR = Color.GRAY;
-    private static final Font PAUSE_FONT = new Font(Font.MONOSPACED, Font.BOLD, 10);
-    private static final Color PAUSE_COLOR = Color.RED;
-    private static final String PAUSE_MSG = "PAUSED";
-    private static final BasicStroke DEFAULT_STROKE = new BasicStroke(1);
-    private static final BasicStroke BOLD_STROKE = new BasicStroke(2);
+    private Font titleFont = new Font(Font.MONOSPACED, Font.BOLD, 18);
+    private Color featureColor = Color.YELLOW;
+    private String hourSecMask = "Hour/Sec: %.4f";
+    private Font infoFont = new Font(Font.MONOSPACED, Font.PLAIN, 10);
+    private Color infoColor = Color.GRAY;
+    private Font pauseFont = new Font(Font.MONOSPACED, Font.BOLD, 10);
+    private Color pauseColor = Color.RED;
+    private String pauseMsg = "PAUSED";
+    private BasicStroke defaultStroke = new BasicStroke(1);
+    private BasicStroke boldStroke = new BasicStroke(2);
     
     //borders
     private boolean borderDrawn;
     private int borderSize = 8; //FIX: don't change properly
-    private static final Color BORDER_COLOR = Color.GRAY;
+    private Color borderColor = Color.GRAY;
     
     //map and minimap
     private World world;
@@ -48,9 +49,9 @@ public class Pandora extends Game {
     private Rectangle minimapBounds;
     private float minimapXScale, minimapYScale;
     private float xOffset, yOffset, clickX, clickY;
-    private static final Cursor HAND_CURSOR = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
-    private static final Cursor MOVE_CURSOR = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
-    private static final Cursor DEFAULT_CURSOR = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
+    private Cursor handCursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
+    private Cursor moveCursor = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
+    private Cursor defaultCursor = Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR);
     private int modelSize = 5;
     
     //ui others
@@ -89,7 +90,7 @@ public class Pandora extends Game {
 	infoY = minimapBounds.y+minimapBounds.height+borderSize;
 	terrainWidth = world.getTerrainWidth();
 	terrainHeight = world.getTerrainHeight();
-	speaker = new Speaker(FEATURE_COLOR, 120);
+	speaker = new Speaker(featureColor, 120);
 	creature = world.getCreature();
     }
 
@@ -107,17 +108,18 @@ public class Pandora extends Game {
 	speaker.tick();
 	
 	//<editor-fold defaultstate="collapsed" desc="KEYBOARD INPUT"> 
-	if(key.isReleased(PAUSE)) paused = !paused;
-	if(key.isPressed(SPEED_UP)) if(hourRate>2)hourRate-=0.2;
-	if(key.isPressed(SPEED_DOWN)) if(hourRate<60)hourRate+=0.2;
-	if(key.isTyped(VOLUME_UP)){
+	if(key.isReleased(pauseKey)) paused = !paused;
+	if(key.isPressed(speedUpKey)) if(hourRate>2)hourRate-=0.2;
+	if(key.isPressed(speedDownKey)) if(hourRate<60)hourRate+=0.2;
+	if(key.isTyped(volumeUpKey)){
 	    if(volume<=90) volume+=10;
 	    speaker.startTimer();
 	}
-	if(key.isReleased(VOLUME_DOWN)){
+	if(key.isReleased(volumeDownKey)){
 	    if(volume>=10) volume-=10;
 	    speaker.startTimer();
 	}
+	if(key.isReleased(saveQValueKey)) world.saveQValues();
 	//</editor-fold>
 	
 	//<editor-fold defaultstate="collapsed" desc="MOUSE INPUT">
@@ -127,33 +129,33 @@ public class Pandora extends Game {
 		clickY = mouse.getY()+yOffset;
 	    }
 	    if(mouse.isPressed(3)){
-		Display.setCursor(MOVE_CURSOR);
+		Display.setCursor(moveCursor);
 		xOffset = -(mouse.getX()-(clickX));
 		yOffset = -(mouse.getY()-(clickY));
 		applyOffsetLimit();
 	    }else if(mouse.isClicked(1)){
 //		world.getEntity(clickX, clickY);
 	    }else{
-		Display.setCursor(HAND_CURSOR);
+		Display.setCursor(handCursor);
 	    }
 	}else if(mouse.isOver(minimapBounds)){
-	    Display.setCursor(HAND_CURSOR);
+	    Display.setCursor(handCursor);
 	    if(mouse.isClicked(1)){
 		xOffset = ((mouse.getX()-minimapBounds.x)/minimapXScale)-(worldBounds.width/2);
 		yOffset = ((mouse.getY()-minimapBounds.y)/minimapYScale)-(worldBounds.height/2);
 		applyOffsetLimit();
 	    }
 	}else{
-	    Display.setCursor(DEFAULT_CURSOR);
+	    Display.setCursor(defaultCursor);
 	}
-	//</editor-fold> //TODO: center on click? follow on criature click?
+	//</editor-fold>
     }
 
     @Override
     public void draw(Graphics2D g) {
 	//borders (just once)
 	if(!borderDrawn){
-	    g.setColor(BORDER_COLOR);
+	    g.setColor(borderColor);
 	    for(int x=infoWidth+1; x<width; x+=borderSize){
 		for(int y=1; y<height; y+=borderSize){
 		    if(x>infoWidth+1 && x<width-borderSize-1 && y>1 && y<height-borderSize-1) continue;
@@ -174,43 +176,43 @@ public class Pandora extends Game {
 	    g.drawImage(clock.drawImage(hour), 0, 0, null);
 	    
 	    //title
-	    g.setFont(TITLE_FONT);
-	    g.setColor(FEATURE_COLOR);
-	    g.drawString(title, (infoWidth/2-g.getFontMetrics(TITLE_FONT).stringWidth(title)/2), 15);
+	    g.setFont(titleFont);
+	    g.setColor(featureColor);
+	    g.drawString(title, (infoWidth/2-g.getFontMetrics(titleFont).stringWidth(title)/2), 15);
 	    
 	    //info
-	    g.setFont(INFO_FONT);
-	    g.setColor(INFO_COLOR);
+	    g.setFont(infoFont);
+	    g.setColor(infoColor);
 	    g.clearRect(0, infoY+4, infoWidth, height-infoY);
 	    g.drawRect(10, infoY+4, infoWidth-20, height-infoY-6);
 	    g.drawString("---INFORMATIONS---", 25, infoY+15); //FIX: non literal info positions
 	    g.drawString("Action:"+creature.getCurrentAction(), 13, infoY+30);
 	    g.drawString("State:"+creature.getCurrentState(), 13, infoY+44);
 	    g.drawString("Life:"+creature.getLife(), 13, infoY+59);
-	    drawInfo(g, 13, infoY+64, (int)creature.getLife(), (int)creature.getLifeMax(), FEATURE_COLOR);
+	    drawInfo(g, 13, infoY+64, (int)creature.getLife(), (int)creature.getLifeMax(), featureColor);
 	    g.drawString("Thirst:"+creature.getThirst(), 13, infoY+119);
 	    drawInfo(g, 13, infoY+124, (int)creature.getThirst(), (int)creature.getThirstMax(), Color.BLUE);
 	    g.drawString("Hunger:"+creature.getHunger(), 13, infoY+179);
 	    drawInfo(g, 13, infoY+184, (int)creature.getHunger(), (int)creature.getHungerMax(), Color.RED);	
 	}else{
 	    //paused
-	    g.setFont(PAUSE_FONT);
-	    g.setColor(PAUSE_COLOR);
-	    g.drawString(PAUSE_MSG, infoWidth/2-g.getFontMetrics(PAUSE_FONT).stringWidth(PAUSE_MSG)/2, 64);
-	    g.setStroke(BOLD_STROKE);
+	    g.setFont(pauseFont);
+	    g.setColor(pauseColor);
+	    g.drawString(pauseMsg, infoWidth/2-g.getFontMetrics(pauseFont).stringWidth(pauseMsg)/2, 64);
+	    g.setStroke(boldStroke);
 	    g.drawLine(infoWidth/2-4, 45, infoWidth/2-4, 55);
 	    g.drawLine(infoWidth/2+4, 45, infoWidth/2+4, 55);
-	    g.setStroke(DEFAULT_STROKE);
+	    g.setStroke(defaultStroke);
 	}
 	
 	//speaker
 	g.drawImage(speaker.drawImage(volume), 5, 5, null);
 	
 	//pandora hour per real second
-	g.setFont(INFO_FONT);
-	g.setColor(FEATURE_COLOR);
+	g.setFont(infoFont);
+	g.setColor(featureColor);
 	g.clearRect(0, clockHeight, infoWidth, 11); //11 -> font height
-	g.drawString(String.format(HOUR_SEC_MASK, 60.0/hourRate), 10, clockHeight+10); //60.0 -> tick rate
+	g.drawString(String.format(hourSecMask, 60.0/hourRate), 10, clockHeight+10); //60.0 -> tick rate
 	
 	//world
 	g.drawImage(
@@ -221,7 +223,7 @@ public class Pandora extends Game {
 	);
 	
 	//minimap
-	g.setColor(FEATURE_COLOR);
+	g.setColor(featureColor);
 	g.drawImage(minimap, minimapBounds.x, minimapBounds.y, null);
 	g.drawRect((int)(minimapBounds.x+(xOffset*minimapXScale)), 
 		(int)(minimapBounds.y+(yOffset*minimapYScale)), 
@@ -266,7 +268,7 @@ public class Pandora extends Game {
 	    else g.drawRect(x+(size*(i-max/2))+3*(i-max/2), y+size+3, size, size);
 	    i++;
 	}
-	g.setColor(INFO_COLOR);
+	g.setColor(infoColor);
     }
     
 }

@@ -20,7 +20,7 @@ public class MouseHandler {
     public MouseHandler(int scale){
 	ml = new MouseListener(){
 	    @Override
-	    public void mousePressed(MouseEvent e) {
+	    public void mousePressed(MouseEvent e){
 		click = true;
 		released = false;
 		button = e.getButton();
@@ -28,26 +28,26 @@ public class MouseHandler {
 	    }
 
 	    @Override
-	    public void mouseReleased(MouseEvent e) {
+	    public void mouseReleased(MouseEvent e){
 		released = true;
 		button = e.getButton();
 		modifier = e.getModifiers();
 	    }
 
-	    public @Override void mouseClicked(MouseEvent e) {}
-	    public @Override void mouseEntered(MouseEvent e) {}
-	    public @Override void mouseExited(MouseEvent e) {}
+	    public @Override void mouseClicked(MouseEvent e){}
+	    public @Override void mouseEntered(MouseEvent e){}
+	    public @Override void mouseExited(MouseEvent e){}
 	};
 	
 	mml = new MouseMotionListener(){
 	    @Override
-	    public void mouseMoved(MouseEvent e) {
+	    public void mouseMoved(MouseEvent e){
 		mouseX = e.getX()/scale;
 		mouseY = e.getY()/scale;
 	    }
 
 	    @Override
-	    public void mouseDragged(MouseEvent e) {
+	    public void mouseDragged(MouseEvent e){
 		mouseX = e.getX()/scale;
 		mouseY = e.getY()/scale;
 	    }
@@ -55,7 +55,7 @@ public class MouseHandler {
 	
 	mwl = new MouseWheelListener(){
 	    @Override
-	    public void mouseWheelMoved(MouseWheelEvent e) {
+	    public void mouseWheelMoved(MouseWheelEvent e){
 		wheel = true;
 	    }
 	};
@@ -88,12 +88,13 @@ public class MouseHandler {
 	return r.contains(mouseX, mouseY);
     }
 
-    public int getX() {return mouseX;}
-    public int getY() {return mouseY;}
-    public int getModifier() {return modifier;}
+    public int getX(){return mouseX;}
+    public int getY(){return mouseY;}
+    public int getModifier(){return modifier;}
     public boolean isWheel(){return wheel;}
-
-    public MouseListener getMouseListener() {return ml;}
-    public MouseMotionListener getMouseMotionListener() {return mml;}
-    public MouseWheelListener getMouseWheelListener() {return mwl;}
+    
+    public MouseListener getMouseListener(){return ml;}
+    public MouseMotionListener getMouseMotionListener(){return mml;}
+    public MouseWheelListener getMouseWheelListener(){return mwl;}
+    
 }

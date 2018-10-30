@@ -16,8 +16,12 @@ public class Generator {
 	return values[RANDOM.nextInt(values.length)];
     }
 
-    public static boolean randomBoolean(int probability) {
-	return RANDOM.nextFloat() <= probability/100.0? true:false;
+    public static boolean randomBoolean(int probability){
+	return RANDOM.nextFloat() <= probability/100.0;
+    }
+    
+    public static boolean randomBoolean(double probability){
+	return RANDOM.nextFloat() <= probability;
     }
     
 }

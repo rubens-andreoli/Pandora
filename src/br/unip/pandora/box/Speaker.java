@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
-public class Speaker { //TODO: implement size?
+public class Speaker {
 
     private Color color;
     private Color noSoundColor = Color.RED;

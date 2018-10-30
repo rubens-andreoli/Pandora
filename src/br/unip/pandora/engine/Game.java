@@ -7,13 +7,13 @@ public abstract class Game {
     protected String title;
     protected int width, height;
 
-    public Game(String title, int width, int height) {
+    public Game(String title, int width, int height){
 	this.title = title;
 	this.width = width;
 	this.height = height;
     }
 
-    public Game(String title) {
+    public Game(String title){
 	this(title, Display.DEFAULT_WIDTH, Display.DEFAULT_HEIGHT);
     }
  

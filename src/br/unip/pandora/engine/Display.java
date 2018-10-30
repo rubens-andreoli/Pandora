@@ -26,7 +26,7 @@ public class Display {
     private BufferedImage buffer;
     private Graphics2D gBuffer;
     
-    public Display(String title, int width, int height, int scale) {
+    public Display(String title, int width, int height, int scale){
 	this.title = title;
 	this.width = width;
 	this.height = height;
@@ -72,7 +72,7 @@ public class Display {
 	return gBuffer;
     }
    
-    public void show() {
+    public void show(){
 	Graphics gShow = panel.getGraphics();
 	gShow.drawImage(buffer, 0, 0, width*scale, height*scale, null);
 	gShow.dispose();
@@ -84,11 +84,11 @@ public class Display {
 	frame.dispose();
     }
    
-    public void addWindowListener(WindowListener l) {
+    public void addWindowListener(WindowListener l){
 	frame.addWindowListener(l);
     }
     
-    public void addKeyHandler(KeyHandler k) {
+    public void addKeyHandler(KeyHandler k){
 	frame.addKeyListener(k.getKeyListener());
     }
     

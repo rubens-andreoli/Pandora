@@ -2,14 +2,18 @@ package br.unip.pandora.box.ai;
 
 import br.unip.pandora.box.entity.Creature;
 import br.unip.pandora.box.entity.Creature.Action;
+import br.unip.pandora.box.entity.Creature.State;
 import br.unip.pandora.engine.Generator;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class QBot {
     
     private double alpha = 0.1; // learning rate
-    private double gamma = 0.5; // eagerness - 0 looks in the near future, 1 looks in the distant future
-    private int variation = 10; //action variation in percentage
-    private double[][] qTable; //q(s,a)
+    private double gamma = 0.8; // 0 doesn't look to future, 1 looks in the distant future
+    private double epsilon = 0.1; //0 exploitation, 1 exploration
+    private double[][] qTable; //q[state][action]
     
     private Creature c;
      
@@ -20,27 +24,27 @@ public class QBot {
     
     public void update(){
 	if(!c.isMoving()){
-	    calculateQ();
+	    c.doAction(calculateQ());
 	} 
 	c.update();
     }
     
-    private void calculateQ() {
+    //Q-Learning: model-free approach to Markov Decision Process (MDP)
+    private Action calculateQ(){
 	int currentState = c.getCurrentState().ordinal();
-	int nextAction = Generator.randomBoolean(variation) ? 
-		Generator.RANDOM.nextInt(c.getActionCount()) :
-		bestAction(c.getCurrentState().ordinal());
+	int nextAction = Generator.randomBoolean(epsilon) ? //epsilon-greedy:
+		Generator.RANDOM.nextInt(c.getActionCount()) : //exploration
+		bestAction(c.getCurrentState().ordinal()); //exploitation
 	int nextState = c.getNextState(Action.values()[nextAction]).ordinal();
 
+	// Time-Difference Learning                   |                      LEARNED                        |  |      OLD      |
 	// Q(state,action)= Q(state,action) + alpha * (R(state,action) + gamma * Max(next state, all actions) - Q(state,action))
-	double q = qTable[currentState][nextAction];
+	double qValue = qTable[currentState][nextAction];
+	int reward = c.getReward(Action.values()[nextAction]);
 	double maxQ = maxQ(nextState);
-	int r = c.getReward(Action.values()[nextAction]);
+	qTable[currentState][nextAction] = qValue + alpha * (reward + gamma * maxQ - qValue);
 
-	double value = q + alpha * (r + gamma * maxQ - q);
-	qTable[currentState][nextAction] = value;
-
-	c.doAction(Action.values()[nextAction]);
+	return Action.values()[nextAction];
     }
     
     private int bestAction(int state){
@@ -63,5 +67,19 @@ public class QBot {
 	return maxQ;
     }
 
-    
+    public void saveQTable(){
+	try(BufferedWriter br = new BufferedWriter(new FileWriter("QTABLE.TXT"))){
+	    for(Action a : Action.values()){
+		br.write(a.name()+" ");
+	    }
+	    br.write("\n");
+	    for(int s=0; s<qTable.length; s++){
+		br.write(State.values()[s].name());
+		for(int a=0; a<qTable[s].length; a++){
+		    br.write(String.format(" %.2f;", qTable[s][a]));
+		}
+		br.write("\n");
+	    }
+	} catch (IOException ex) {}
+    }
 }

@@ -12,6 +12,7 @@ public class Clock {
     private Color sunColor = Color.YELLOW;
     private int moonSize = 10;
     private Color moonColor = Color.GRAY;
+    private String textMask = "Year: %04d Day: %03d Hour: %02d";
     private Font textFont = new Font(Font.MONOSPACED, Font.PLAIN, 9);
     private Color textColor = Color.GRAY;
     private int width, height;
@@ -58,9 +59,11 @@ public class Clock {
 	g.setFont(textFont);
 	g.setColor(textColor);
 	g.drawLine(10, orbitRadius+25, width-10, orbitRadius+25);
-	String time = "Year: "+ String.format("%04d", (hour/dayHours)/yearDays)+
-		" Day: " + String.format("%03d", (hour/dayHours)%yearDays) + 
-		" Hour: " + String.format("%02d", hour%dayHours);
+	String time = String.format(textMask, 
+		(hour/dayHours)/yearDays, 
+		(hour/dayHours)%yearDays, 
+		hour%dayHours
+	);
 	g.drawString(time, (width/2 - g.getFontMetrics(textFont).stringWidth(time)/2)+1, orbitRadius+35);
 	
 	return image;

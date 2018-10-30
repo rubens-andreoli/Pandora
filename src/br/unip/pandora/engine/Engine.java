@@ -18,7 +18,7 @@ public class Engine {
     private KeyHandler key;
     private MouseHandler mouse;
 
-    public Engine(Game game, Display display, KeyHandler key, MouseHandler mouse, int tickRate) {
+    public Engine(Game game, Display display, KeyHandler key, MouseHandler mouse, int tickRate){
 	this.game = game;
 	this.display = display;
 	this.key = key;
@@ -74,13 +74,13 @@ public class Engine {
 	running = false;
 	try {
 	    thread.join(); 
-	} catch (InterruptedException ex) {
+	} catch (InterruptedException ex){
 	} finally {
 	    display.close();
 	}
     }
 
-    private void loop() {
+    private void loop(){
 	long lastTime = System.nanoTime();
 	long now;
 	
@@ -90,14 +90,14 @@ public class Engine {
 	long lastTimer = System.currentTimeMillis();
 	double delta = 0;
 	
-//	boolean shouldRender = false;  //limit to 1 render for update
+	boolean shouldRender = false;  //limit to 1 render for update
 	
 	while(running){
 	    now = System.nanoTime();
 	    delta += (now-lastTime)/nanoTick;
 	    lastTime = now;
 
-//	    shouldRender = false;
+	    shouldRender = false;
 
 	    while(delta >= 1){
 		ticks++;
@@ -105,14 +105,14 @@ public class Engine {
 		key.tick();
 		mouse.tick();
 		delta -= 1;
-//		shouldRender = true;
+		shouldRender = true;
 	    }
 
-//	    if(shouldRender){
+	    if(shouldRender){
 		frames++;
 		game.draw(display.getGraphics());
 		display.show();
-//	    }
+	    }
 	    
 	    if(System.currentTimeMillis() - lastTimer>1000){
 		lastTimer += 1000;
@@ -121,11 +121,9 @@ public class Engine {
 		ticks = 0;
 	    }
 	    
-//	    try {
-//		Thread.sleep(2);
-//	    } catch (InterruptedException ex) {
-//		ex.printStackTrace();
-//	    }
+	    try {
+		Thread.sleep(1);
+	    } catch (InterruptedException ex){}
 	}
     }
     
