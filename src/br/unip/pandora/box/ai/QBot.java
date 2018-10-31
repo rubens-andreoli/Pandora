@@ -10,9 +10,23 @@ import java.io.IOException;
 
 public class QBot {
     
-    private double alpha = 0.1; // learning rate
-    private double gamma = 0.8; // 0 doesn't look to future, 1 looks in the distant future
-    private double epsilon = 0.1; //0 exploitation, 1 exploration
+    /*Learning Rate: 
+    * Alpha determines to what extent the newly acquired information will override the old information. 
+    * A factor of 0 will make the agent not learn anything; 
+    * A factor of 1 would make the agent consider only the most recent information.
+    */
+    private double alpha = 0.1; 
+    /*Discount Factor:
+    * Gamma determines the importance of future rewards. 
+    * A factor of 0 will make the agent short-sighted by only considering current rewards; 
+    * A factor approaching 1 will make it strive for a long-term high reward. 
+    */
+    private double gamma = 0.7;
+    /*Exploration vs Exploitation:
+    * Epsilon-greedy algorithms chooses the action that has the best reward with probability 1-epsilon;
+    * Otherwise, a new action is explored at random with probability epsilon.
+    */
+    private double epsilon = 0.1;
     private double[][] qTable; //q[state][action]
     
     private Creature c;

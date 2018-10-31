@@ -5,6 +5,7 @@ import br.unip.pandora.engine.Display;
 import br.unip.pandora.engine.Game;
 import br.unip.pandora.engine.KeyHandler;
 import br.unip.pandora.engine.MouseHandler;
+import br.unip.pandora.engine.SoundPlayer;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -58,9 +59,11 @@ public class Pandora extends Game {
     private Clock clock;
     private Speaker speaker;
     private int infoWidth = 160;  //FIX: border don't change properly
-    private int volume = 75;
+    private float volume = 0.7F;
+    private float volumeRate = 0.1F;
     private int clockHeight, infoY, terrainWidth, terrainHeight;
     private Creature creature;
+    private SoundPlayer sound;
     
     //logic
     private boolean paused;
@@ -83,7 +86,8 @@ public class Pandora extends Game {
 		infoWidth-18-(borderSize*2),
 		infoWidth-18-(borderSize*2)
 	);
-	world = new World(worldBounds.width, worldBounds.height, minimapBounds.width, minimapBounds.height);
+	sound = new SoundPlayer(volume);
+	world = new World(worldBounds.width, worldBounds.height, minimapBounds.width, minimapBounds.height, sound);
 	minimap = world.getMinimap();
 	minimapXScale = world.getMinimapXScale();
 	minimapYScale = world.getMinimapYScale();
@@ -112,11 +116,15 @@ public class Pandora extends Game {
 	if(key.isPressed(speedUpKey)) if(hourRate>2)hourRate-=0.2;
 	if(key.isPressed(speedDownKey)) if(hourRate<60)hourRate+=0.2;
 	if(key.isTyped(volumeUpKey)){
-	    if(volume<=90) volume+=10;
+	    volume+=volumeRate;
+	    if(volume > 1) volume = 1F;
+	    sound.setVolume(volume);
 	    speaker.startTimer();
 	}
 	if(key.isReleased(volumeDownKey)){
-	    if(volume>=10) volume-=10;
+	    volume-=volumeRate;
+	    if(volume < 0) volume = 0;
+	    sound.setVolume(volume);
 	    speaker.startTimer();
 	}
 	if(key.isReleased(saveQValueKey)) world.saveQValues();

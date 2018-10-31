@@ -1,5 +1,6 @@
 package br.unip.pandora.box.entity;
 
+import br.unip.pandora.engine.SoundPlayer;
 import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -39,10 +40,16 @@ public class Creature extends Entity {
     //actions
     private Entity[][] map;
     private int targetX, targetY;
+    private float distance;
     private boolean moving;
     private Action currentAction = Action.NOTHING; 
     private int fatigue;
     private int fatigueMax = 15; //stop moving after x updates
+    private SoundPlayer sound;
+    public static final String GRASS_SOUND = "grass";
+    public static final String WATER_SOUND = "swim";
+    public static final String DRINK_SOUND = "drink";
+    public static final String EAT_SOUND = "food";
     //<editor-fold defaultstate="collapsed" desc="Action">
     public enum Action {
 	NOTHING, 
@@ -52,9 +59,14 @@ public class Creature extends Entity {
     }
     //</editor-fold>
 
-    public Creature(int x, int y, Entity[][] map){
+    public Creature(int x, int y, Entity[][] map, SoundPlayer sound){
 	super(ID, x, y, Color.YELLOW);
 	this.map = map;
+	this.sound = sound;
+	sound.load("/sounds/grass.mp3", GRASS_SOUND);
+	sound.load("/sounds/swim.mp3", WATER_SOUND);
+	sound.load("/sounds/food.mp3", EAT_SOUND);
+	sound.load("/sounds/drink.mp3", DRINK_SOUND);
 	tail = new ArrayList<>();
 	for(int i=0; i < tailLenght; i++){
 	    tail.add(new Point(x, y));
@@ -74,7 +86,19 @@ public class Creature extends Entity {
 
 	fatigue++;
 	moving = targetX != x || targetY != y && fatigue <= fatigueMax;
-	if(moving) move();
+	if(moving){
+	    move();
+	    if(map[x][y] == null){
+		sound.stop(WATER_SOUND);
+		sound.loop(GRASS_SOUND);
+	    }else if(map[x][y].id == Water.ID){
+		sound.stop(GRASS_SOUND);
+		sound.loop(WATER_SOUND);
+	    }
+	}else{
+	    sound.stop(GRASS_SOUND);
+	    sound.stop(WATER_SOUND);
+	}
 
 	setState();
     }
@@ -112,11 +136,13 @@ public class Creature extends Entity {
 	switch(e.id){
 	    case Water.ID: 
 		thirst = 0;
+		sound.play(DRINK_SOUND);
 		break;
 	    case Food.ID: 
 		if(life < lifeMax){
 		    life++;
 		}
+		sound.play(EAT_SOUND);
 		hunger = 0; 
 		e.remove();
 		break;
@@ -124,16 +150,17 @@ public class Creature extends Entity {
     }
     
     private void target(int id){
-	double minDistance = -1;
+	double minD = -1;
 	for(int x=0; x<map.length; x++){
 	    for(int y=0; y<map[x].length; y++){
 		Entity e = map[x][y];
 		if(e != null && e.id == id){
-		    double distance = Math.hypot(this.x-x, this.y-y); //all water is x=0/y=0 so get x,y from matriz, not entity
-		    if(distance < minDistance || minDistance == -1){
-			minDistance = distance;
+		    double d = Math.hypot(this.x-x, this.y-y); //all water is x=0/y=0 so get x,y from matriz, not entity
+		    if(d < minD || minD == -1){
+			minD = d;
 			targetX = x;
 			targetY = y;
+			distance = (float) d;
 		    }
 		}
 	    }
@@ -161,6 +188,7 @@ public class Creature extends Entity {
     }
     
     public int getReward(Action a){
+	if(life == 0) return -1;
 	int r = 0;
 	switch(a){
 	    case NOTHING:
@@ -180,12 +208,16 @@ public class Creature extends Entity {
 	State s = currentState;
 	switch(a){
 	    case SEARCH_WATER:
-		if(currentState == State.THIRST || currentState == State.NEEDY) s = State.MUST_DRINK;
-		else s = State.CAN_DRINK;
+		if(distance <= fatigueMax){
+		    if(currentState == State.THIRST || currentState == State.NEEDY) s = State.MUST_DRINK;
+		    else s = State.CAN_DRINK;
+		}
 		break;
 	    case SEARCH_FOOD:
-		if(currentState == State.HUNGRY || currentState == State.NEEDY) s = State.MUST_EAT;
-		else s = State.CAN_EAT;
+		if(distance <= fatigueMax){
+		    if(currentState == State.HUNGRY || currentState == State.NEEDY) s = State.MUST_EAT;
+		    else s = State.CAN_EAT;
+		}
 		break;
 	    case INTERACT:
 		if(currentState == State.MUST_DRINK) s = State.CAN_DRINK;
