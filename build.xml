@@ -8,8 +8,19 @@
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
 <project name="Pandora" default="default" basedir=".">
-    <description>Builds, tests, and runs the project Pandora.</description>
+    <description>PANDORA: Algoritimo Q-learning na Interação com  Elementos de um Ambiente.</description>
     <import file="nbproject/build-impl.xml"/>
+    <target name="-post-jar">
+    <jar jarfile="dist/PandoraBox.jar">
+      <zipfileset src="${dist.jar}" excludes="META-INF/*" />
+      <zipfileset src="lib/mp3spi1.9.5.jar" excludes="META-INF/*" />
+      <zipfileset src="lib/jl1.0.1.jar" excludes="META-INF/*" />
+      <zipfileset src="lib/tritonus_share.jar" excludes="META-INF/*" />
+      <manifest>
+        <attribute name="Main-Class" value="br.unip.pandora.Launcher"/>
+      </manifest>
+      </jar>
+    </target>
     <!--
 
     There exist several targets which are by default empty and which can be 

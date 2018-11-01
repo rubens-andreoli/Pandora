@@ -5,7 +5,7 @@ import br.unip.pandora.engine.Display;
 import br.unip.pandora.engine.Game;
 import br.unip.pandora.engine.KeyHandler;
 import br.unip.pandora.engine.MouseHandler;
-import br.unip.pandora.engine.SoundPlayer;
+import br.unip.pandora.engine.SoundManager;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -63,7 +63,7 @@ public class Pandora extends Game {
     private float volumeRate = 0.1F;
     private int clockHeight, infoY, terrainWidth, terrainHeight;
     private Creature creature;
-    private SoundPlayer sound;
+    private SoundManager sound;
     
     //logic
     private boolean paused;
@@ -86,7 +86,7 @@ public class Pandora extends Game {
 		infoWidth-18-(borderSize*2),
 		infoWidth-18-(borderSize*2)
 	);
-	sound = new SoundPlayer(volume);
+	sound = new SoundManager(volume);
 	world = new World(worldBounds.width, worldBounds.height, minimapBounds.width, minimapBounds.height, sound);
 	minimap = world.getMinimap();
 	minimapXScale = world.getMinimapXScale();

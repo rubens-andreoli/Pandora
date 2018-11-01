@@ -6,7 +6,7 @@ import br.unip.pandora.box.entity.Entity;
 import br.unip.pandora.box.entity.Food;
 import br.unip.pandora.box.entity.Water;
 import br.unip.pandora.engine.Generator;
-import br.unip.pandora.engine.SoundPlayer;
+import br.unip.pandora.engine.SoundManager;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -53,7 +53,7 @@ public class World {
     private int foodLimit = 4;
     private HashSet<Food> foodSet;
     
-    public World(int drawWidth, int drawHeight, int minimapWidth, int minimapHeight, SoundPlayer sound) {
+    public World(int drawWidth, int drawHeight, int minimapWidth, int minimapHeight, SoundManager sound) {
 	this.drawWidth = drawWidth;
 	this.drawHeight = drawHeight;
 	this.minimapWidth = minimapWidth;
@@ -87,7 +87,7 @@ public class World {
 	waterPoints = null; //only used for draw
     }
     
-    public World(int drawSize, int minimapSize, SoundPlayer sound){
+    public World(int drawSize, int minimapSize, SoundManager sound){
 	this(drawSize, drawSize, minimapSize, minimapSize, sound);
     }
 

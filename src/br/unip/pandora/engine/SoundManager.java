@@ -10,17 +10,17 @@ import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-public class SoundPlayer {
+public class SoundManager {
     
     private final HashMap<String, Clip> clips;
     private float volume;
     private boolean mute;
 
-    public SoundPlayer(){
+    public SoundManager(){
 	this(1.0F);
     }
     
-    public SoundPlayer(float volume){
+    public SoundManager(float volume){
         clips = new HashMap<String, Clip>();
 	this.volume = volume;
     }
@@ -28,7 +28,7 @@ public class SoundPlayer {
     public void load(String filepath, String audioID){
 	if(clips.get(audioID) != null) return;
 	try {
-	    AudioInputStream ais = AudioSystem.getAudioInputStream(SoundPlayer.class.getResourceAsStream(filepath));
+	    AudioInputStream ais = AudioSystem.getAudioInputStream(SoundManager.class.getResourceAsStream(filepath));
 	    AudioFormat baseFormat = ais.getFormat();
 	    AudioFormat decodeFormat = new AudioFormat(
 	        AudioFormat.Encoding.PCM_SIGNED,
@@ -42,13 +42,23 @@ public class SoundPlayer {
 	    AudioInputStream dais = AudioSystem.getAudioInputStream(decodeFormat, ais);
 	    Clip c = AudioSystem.getClip();
 	    c.open(dais);
-	    SoundPlayer.this.applyVolume(c);
+	    SoundManager.this.applyVolume(c);
 	    clips.put(audioID, c);
 	} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {}
     }
 	
     public void play(String audioID) {
     	play(audioID, 0);
+    }
+    
+    public void replay(String audioID){
+	if(mute) return;
+	Clip c = clips.get(audioID);
+	if(c == null) return;
+	if(!c.isRunning()){
+	    c.setFramePosition(0);
+	    while(!c.isRunning()) c.start();
+	}
     }
 	
     public void play(String audioID, int frame) {
@@ -97,7 +107,7 @@ public class SoundPlayer {
 	if(c == null) return;
 	stop(audioID);
 	c.setLoopPoints(start, end);
-	c.setFramePosition(frame); //FIX: error if pass frame end...
+	c.setFramePosition(frame);
 	while(!c.isRunning()) c.loop(Clip.LOOP_CONTINUOUSLY);
     }
 	

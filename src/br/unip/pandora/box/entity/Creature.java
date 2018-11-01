@@ -1,6 +1,6 @@
 package br.unip.pandora.box.entity;
 
-import br.unip.pandora.engine.SoundPlayer;
+import br.unip.pandora.engine.SoundManager;
 import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public class Creature extends Entity {
     private Action currentAction = Action.NOTHING; 
     private int fatigue;
     private int fatigueMax = 15; //stop moving after x updates
-    private SoundPlayer sound;
+    private SoundManager sound;
     public static final String GRASS_SOUND = "grass";
     public static final String WATER_SOUND = "swim";
     public static final String DRINK_SOUND = "drink";
@@ -59,7 +59,7 @@ public class Creature extends Entity {
     }
     //</editor-fold>
 
-    public Creature(int x, int y, Entity[][] map, SoundPlayer sound){
+    public Creature(int x, int y, Entity[][] map, SoundManager sound){
 	super(ID, x, y, Color.YELLOW);
 	this.map = map;
 	this.sound = sound;
@@ -90,10 +90,10 @@ public class Creature extends Entity {
 	    move();
 	    if(map[x][y] == null){
 		sound.stop(WATER_SOUND);
-		sound.loop(GRASS_SOUND);
+		sound.replay(GRASS_SOUND);
 	    }else if(map[x][y].id == Water.ID){
 		sound.stop(GRASS_SOUND);
-		sound.loop(WATER_SOUND);
+		sound.replay(WATER_SOUND);
 	    }
 	}else{
 	    sound.stop(GRASS_SOUND);

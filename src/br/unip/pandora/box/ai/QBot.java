@@ -28,6 +28,7 @@ public class QBot {
     */
     private double epsilon = 0.1;
     private double[][] qTable; //q[state][action]
+    private int episodes;
     
     private Creature c;
      
@@ -39,6 +40,7 @@ public class QBot {
     public void update(){
 	if(!c.isMoving()){
 	    c.doAction(calculateQ());
+	    episodes++;
 	} 
 	c.update();
     }
@@ -82,17 +84,19 @@ public class QBot {
     }
 
     public void saveQTable(){
+	String lineBreak = System.getProperty("line.separator");
 	try(BufferedWriter br = new BufferedWriter(new FileWriter("QTABLE.TXT"))){
+	    br.write("Nº Episodes: "+episodes+lineBreak+"\t\t");
 	    for(Action a : Action.values()){
-		br.write(a.name()+" ");
+		br.write(a.name()+"\t");
 	    }
-	    br.write("\n");
+	    br.write(System.getProperty("line.separator"));
 	    for(int s=0; s<qTable.length; s++){
-		br.write(State.values()[s].name());
+		br.write(String.format("%10s", State.values()[s].name()));
 		for(int a=0; a<qTable[s].length; a++){
-		    br.write(String.format(" %.2f;", qTable[s][a]));
+		    br.write(String.format("\t%.2f\t", qTable[s][a]));
 		}
-		br.write("\n");
+		br.write(lineBreak);
 	    }
 	} catch (IOException ex) {}
     }
