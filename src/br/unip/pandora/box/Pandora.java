@@ -25,6 +25,7 @@ public class Pandora extends Game {
     private int volumeUpKey;
     private int volumeDownKey;
     private int saveQValueKey;
+    private int followKey;
     
     //text
     private Font titleFont = new Font(Font.MONOSPACED, Font.BOLD, 18);
@@ -65,6 +66,7 @@ public class Pandora extends Game {
     private int clockHeight, infoY, terrainWidth, terrainHeight;
     private Creature creature;
     private SoundManager sound;
+    private boolean follow;
     
     //logic
     private boolean paused;
@@ -79,6 +81,7 @@ public class Pandora extends Game {
 	volumeUpKey = Integer.parseInt((String)p.get("volumeUpKey"));
 	volumeDownKey = Integer.parseInt((String)p.get("volumeDownKey"));
 	saveQValueKey = Integer.parseInt((String)p.get("saveQValueKey"));
+	followKey = Integer.parseInt((String)p.get("followKey"));
 	clock = new Clock(
 		infoWidth, 
 		Integer.parseInt((String)p.get("dayHours")), 
@@ -128,11 +131,7 @@ public class Pandora extends Game {
 	}
 	
 	speaker.tick();
-	
-	xOffset = creature.getX()*world.getGridSize()-(worldBounds.width/2);
-	yOffset = creature.getY()*world.getGridSize()-(worldBounds.height/2);
-	applyOffsetLimit();
-	
+
 	//<editor-fold defaultstate="collapsed" desc="KEYBOARD INPUT"> 
 	if(key.isReleased(pauseKey)) paused = !paused;
 	if(key.isPressed(speedUpKey)) if(hourRate>2)hourRate-=0.2;
@@ -150,7 +149,14 @@ public class Pandora extends Game {
 	    speaker.startTimer();
 	}
 	if(key.isReleased(saveQValueKey)) world.saveQValues();
+	if(key.isReleased(followKey)) follow = !follow;
 	//</editor-fold>
+	
+	if(follow){
+	    xOffset = creature.getX()*world.getGridSize()-(worldBounds.width/2);
+	    yOffset = creature.getY()*world.getGridSize()-(worldBounds.height/2);
+	    applyOffsetLimit();
+	}
 	
 	//<editor-fold defaultstate="collapsed" desc="MOUSE INPUT">
 	if(mouse.isOver(worldBounds)){
@@ -163,18 +169,18 @@ public class Pandora extends Game {
 		xOffset = -(mouse.getX()-(clickX));
 		yOffset = -(mouse.getY()-(clickY));
 		applyOffsetLimit();
-	    }else if(mouse.isClicked(1)){
+//	    }else if(mouse.isClicked(1)){
 //		world.getEntity(clickX, clickY);
 	    }else{
 		Display.setCursor(handCursor);
 	    }
-//	}else if(mouse.isOver(minimapBounds)){
-//	    Display.setCursor(handCursor);
-//	    if(mouse.isClicked(1)){
-//		xOffset = ((mouse.getX()-minimapBounds.x)/minimapXScale)-(worldBounds.width/2);
-//		yOffset = ((mouse.getY()-minimapBounds.y)/minimapYScale)-(worldBounds.height/2);
-//		applyOffsetLimit();
-//	    }
+	}else if(!follow && mouse.isOver(minimapBounds)){
+	    Display.setCursor(handCursor);
+	    if(mouse.isClicked(1)){
+		xOffset = ((mouse.getX()-minimapBounds.x)/minimapXScale)-(worldBounds.width/2);
+		yOffset = ((mouse.getY()-minimapBounds.y)/minimapYScale)-(worldBounds.height/2);
+		applyOffsetLimit();
+	    }
 	}else{
 	    Display.setCursor(defaultCursor);
 	}

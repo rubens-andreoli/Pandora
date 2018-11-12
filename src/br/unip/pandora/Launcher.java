@@ -35,6 +35,7 @@ public class Launcher {
 	    p.setProperty("volumeUpKey", String.valueOf(KeyEvent.VK_ADD));
 	    p.setProperty("volumeDownKey", String.valueOf(KeyEvent.VK_SUBTRACT));
 	    p.setProperty("saveQValueKey", String.valueOf(KeyEvent.VK_Q));
+	    p.setProperty("followKey", String.valueOf(KeyEvent.VK_F));
 	    p.setProperty("worldRows", "100");
 	    p.setProperty("worldCols", "100");
 	    saveConfig(p);
