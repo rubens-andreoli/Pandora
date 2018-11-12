@@ -15,6 +15,7 @@ import java.awt.image.BufferedImage;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ListIterator;
+import java.util.Properties;
 
 public class World {
     
@@ -45,19 +46,22 @@ public class World {
     private int drawWidth, drawHeight;
 
     //entity control
-    private int rows = 100; //77
-    private int cols = 100;
+    private int rows; //77
+    private int cols;
     private Entity[][] entityMap;
     private Creature creature;
     private QBot qBot;
     private int foodLimit = 4;
     private HashSet<Food> foodSet;
     
-    public World(int drawWidth, int drawHeight, int minimapWidth, int minimapHeight, SoundManager sound) {
+    public World(Properties p, int drawWidth, int drawHeight, int minimapWidth, int minimapHeight, SoundManager sound) {
 	this.drawWidth = drawWidth;
 	this.drawHeight = drawHeight;
 	this.minimapWidth = minimapWidth;
 	this.minimapHeight = minimapHeight;
+	
+	rows = Integer.parseInt((String)p.get("worldRows"));
+	cols = Integer.parseInt((String)p.get("worldCols"));
 	
 	terrainWidth = gridSize*cols+1;
 	terrainHeight = gridSize*rows+1;
@@ -87,8 +91,8 @@ public class World {
 	waterPoints = null; //only used for draw
     }
     
-    public World(int drawSize, int minimapSize, SoundManager sound){
-	this(drawSize, drawSize, minimapSize, minimapSize, sound);
+    public World(Properties p, int drawSize, int minimapSize, SoundManager sound){
+	this(p, drawSize, drawSize, minimapSize, minimapSize, sound);
     }
 
     //<editor-fold defaultstate="collapsed" desc="TERRAIN GENERATION">

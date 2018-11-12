@@ -13,18 +13,18 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.util.Properties;
 
 public class Pandora extends Game {
 
     //keys
-    private int pauseKey = KeyEvent.VK_SPACE;
-    private int speedUpKey = KeyEvent.VK_PAGE_UP;
-    private int speedDownKey = KeyEvent.VK_PAGE_DOWN;
-    private int volumeUpKey = KeyEvent.VK_ADD;
-    private int volumeDownKey = KeyEvent.VK_SUBTRACT;
-    private int saveQValueKey = KeyEvent.VK_Q;
+    private int pauseKey;
+    private int speedUpKey;
+    private int speedDownKey;
+    private int volumeUpKey;
+    private int volumeDownKey;
+    private int saveQValueKey;
     
     //text
     private Font titleFont = new Font(Font.MONOSPACED, Font.BOLD, 18);
@@ -37,10 +37,11 @@ public class Pandora extends Game {
     private String pauseMsg = "PAUSED";
     private BasicStroke defaultStroke = new BasicStroke(1);
     private BasicStroke boldStroke = new BasicStroke(2);
+    private String infoMsg = "---INFORMATIONS---";
     
     //borders
     private boolean borderDrawn;
-    private int borderSize = 8; //FIX: don't change properly
+    private final int borderSize = 8;
     private Color borderColor = Color.GRAY;
     
     //map and minimap
@@ -58,7 +59,7 @@ public class Pandora extends Game {
     //ui others
     private Clock clock;
     private Speaker speaker;
-    private int infoWidth = 160;  //FIX: border don't change properly
+    private final int infoWidth = 160;
     private float volume = 0.7F;
     private float volumeRate = 0.1F;
     private int clockHeight, infoY, terrainWidth, terrainHeight;
@@ -70,9 +71,19 @@ public class Pandora extends Game {
     private int tick, hour;
     private float hourRate = 30; //1 hours per 30 ticks -> 60 ticks per 1 seg -> 1 hour per 1/2 sec
 
-    public Pandora() {
-	super("PANDORA", 640, 480); //800x480
-	clock = new Clock(infoWidth, 24, 365);
+    public Pandora(Properties p) {
+	super("PANDORA", Integer.parseInt((String)p.get("width")), Integer.parseInt((String)p.get("height")));
+	pauseKey = Integer.parseInt((String)p.get("pauseKey"));
+	speedUpKey = Integer.parseInt((String)p.get("speedUpKey"));
+	speedDownKey = Integer.parseInt((String)p.get("speedDownKey"));
+	volumeUpKey = Integer.parseInt((String)p.get("volumeUpKey"));
+	volumeDownKey = Integer.parseInt((String)p.get("volumeDownKey"));
+	saveQValueKey = Integer.parseInt((String)p.get("saveQValueKey"));
+	clock = new Clock(
+		infoWidth, 
+		Integer.parseInt((String)p.get("dayHours")), 
+		Integer.parseInt((String)p.get("yearDays"))
+	);
 	clockHeight = clock.getHeight();
 	worldBounds = new Rectangle(
 		infoWidth+borderSize+1, 
@@ -87,7 +98,14 @@ public class Pandora extends Game {
 		infoWidth-18-(borderSize*2)
 	);
 	sound = new SoundManager(volume);
-	world = new World(worldBounds.width, worldBounds.height, minimapBounds.width, minimapBounds.height, sound);
+	world = new World(
+		p, 
+		worldBounds.width, 
+		worldBounds.height, 
+		minimapBounds.width, 
+		minimapBounds.height, 
+		sound
+	);
 	minimap = world.getMinimap();
 	minimapXScale = world.getMinimapXScale();
 	minimapYScale = world.getMinimapYScale();
@@ -193,15 +211,17 @@ public class Pandora extends Game {
 	    g.setColor(infoColor);
 	    g.clearRect(0, infoY+4, infoWidth, height-infoY);
 	    g.drawRect(10, infoY+4, infoWidth-20, height-infoY-6);
-	    g.drawString("---INFORMATIONS---", 25, infoY+15); //FIX: non literal info positions
+	    g.drawString(infoMsg, 25, infoY+15);
 	    g.drawString("Action:"+creature.getCurrentAction(), 13, infoY+30);
 	    g.drawString("State:"+creature.getCurrentState(), 13, infoY+44);
 	    g.drawString("Life:"+creature.getLife(), 13, infoY+59);
 	    drawInfo(g, 13, infoY+64, (int)creature.getLife(), (int)creature.getLifeMax(), featureColor);
-	    g.drawString("Thirst:"+creature.getThirst(), 13, infoY+119);
-	    drawInfo(g, 13, infoY+124, (int)creature.getThirst(), (int)creature.getThirstMax(), Color.BLUE);
-	    g.drawString("Hunger:"+creature.getHunger(), 13, infoY+179);
-	    drawInfo(g, 13, infoY+184, (int)creature.getHunger(), (int)creature.getHungerMax(), Color.RED);	
+	    int thirst = (int)creature.getThirstMax();
+	    g.drawString("Hydration:"+creature.getThirst(), 13, infoY+119);
+	    drawInfo(g, 13, infoY+124, (int)(thirst-creature.getThirst()), thirst, Color.BLUE);
+	    int hunger = (int)creature.getHungerMax();
+	    g.drawString("Satiation:"+creature.getHunger(), 13, infoY+179);
+	    drawInfo(g, 13, infoY+184, (int)(hunger-creature.getHunger()), hunger, Color.RED);	
 	}else{
 	    //paused
 	    g.setFont(pauseFont);
