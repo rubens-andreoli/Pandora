@@ -215,7 +215,7 @@ public class World {
 	
 	//draw terrain
 	g.drawImage(terrain.getSubimage((int)xOffset, (int)yOffset, Math.min(drawWidth, terrainWidth), 
-		Math.min(drawWidth, terrainHeight)), 0, 0, null);
+		Math.min(drawHeight, terrainHeight)), 0, 0, null);
 	
 	//draw visible entities
 	int viewXStart = (int)(xOffset/gridSize);
