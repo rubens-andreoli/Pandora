@@ -129,6 +129,10 @@ public class Pandora extends Game {
 	
 	speaker.tick();
 	
+	xOffset = creature.getX()*world.getGridSize()-(worldBounds.width/2);
+	yOffset = creature.getY()*world.getGridSize()-(worldBounds.height/2);
+	applyOffsetLimit();
+	
 	//<editor-fold defaultstate="collapsed" desc="KEYBOARD INPUT"> 
 	if(key.isReleased(pauseKey)) paused = !paused;
 	if(key.isPressed(speedUpKey)) if(hourRate>2)hourRate-=0.2;
@@ -164,13 +168,13 @@ public class Pandora extends Game {
 	    }else{
 		Display.setCursor(handCursor);
 	    }
-	}else if(mouse.isOver(minimapBounds)){
-	    Display.setCursor(handCursor);
-	    if(mouse.isClicked(1)){
-		xOffset = ((mouse.getX()-minimapBounds.x)/minimapXScale)-(worldBounds.width/2);
-		yOffset = ((mouse.getY()-minimapBounds.y)/minimapYScale)-(worldBounds.height/2);
-		applyOffsetLimit();
-	    }
+//	}else if(mouse.isOver(minimapBounds)){
+//	    Display.setCursor(handCursor);
+//	    if(mouse.isClicked(1)){
+//		xOffset = ((mouse.getX()-minimapBounds.x)/minimapXScale)-(worldBounds.width/2);
+//		yOffset = ((mouse.getY()-minimapBounds.y)/minimapYScale)-(worldBounds.height/2);
+//		applyOffsetLimit();
+//	    }
 	}else{
 	    Display.setCursor(defaultCursor);
 	}
